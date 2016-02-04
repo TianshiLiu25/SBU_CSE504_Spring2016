@@ -1,0 +1,148 @@
+This homework has two related parts. The first part is to be done by CSE 504 as well as 304 students. The second part is for CSE 504 students only.
+Part 1: SSM Interpreter:
+
+In the first part, you are expected to implement, in Python, an interpreter for SSM, a simple stack machine-based assembly language. Your program should take input from standard input and write output to standard output.
+The program's input consists of a sequence of instructions for a stack machine. This machine has no general purpose registers. It has two separate memory areas: the first, called the store that is directly addressed; and the second, called the stack that holds operands for operations. There are two kinds of machine instructions: load/store to move values between the two memory areas, and the rest which manipulate the top (few) entries on the stack. The machine manipulates only integer data.
+
+The assembly language consists of the following instructions.
+
+ildc num: push the given integer num on to the stack.
+iadd: pop the top two elements of the stack, add them, and push their sum on to the stack.
+isub: subtract the top-most element on stack from the second-to-top element; pop the top two elements of the stack, and push the result of the subtraction on to the stack.
+imul: pop the top two elements of the stack, multiply them, and push their product on to the stack.
+idiv: divide the second-to-top element on the stack by the top-most element; pop the top two elements of the stack, and push the result of the division (the quotient) on to the stack.
+idiv: divide the second-to-top element on the stack by the top-most element; pop the top two elements of the stack, and push the result of the division (the remainder) on to the stack.
+pop: pop the top-most element of the stack.
+dup: push the value on the top of stack on to the stack (i.e. duplicate the top-most entry in the stack).
+swap: swap the top two values on the stack. That is, if n is the top-most value on the stack, and m is immediately below it, make m the top most value of the stack with n immediately below it.
+jz label: pop the top most value from the stack; if it is zero, jump to the instruction labelled with the given label; otherwise go to the next instruction.
+jnz label: pop the top most value from the stack; if it is not zero, jump to the instruction labelled with the given label; otherwise go to the next instruction.
+jmp label: jump to the instruction labelled with the given label.
+load: the top-most element of the stack is the address in store, say a. This instruction pops the top-most element, and pushes the value at address a in store.
+For instance, let store be such that integer 10 is at address 4. Then, when load is executed with 4 at top of stack, the 4 is replaced with 10.
+
+store: Treat the second-to-top element on the stack as an address a, and the top-most element as an integer i. Pop the top two elements from stack. The cell at address a in the store is updated with integer i.
+For instance, let store be such that integer 10 is at address 4. Let the stack have 4 as the second-from-top entry and 12 as the top entry. The store instruction will pop off 4 and 12, and update the cell 4's value to 12 (from 10).
+
+An assembly language program is a sequence of instructions. Each instruction may be preceded by an optional label and a semi-colon (":"). A label is a sequence of alphabetic characters or numeric characters or underscore ("_"), beginning with an alphabetic character. An integer num is a sequence of numeric characters, optionally preceded by a minus ("-"). The instructions in the assembly language should always be in lower-case.
+Note that instructions ildc, jz, jnz and jmp take one argument; the other instructions have no arguments.
+
+The label may be separated from the following instruction by a sequence of zero or more whitespace (blank, tab, newline) characters. An instruction and its argument will be separated by a sequence of one or more whitespace characters. In the examples below, each instruction is on a line of its own; in general, though, there may be more than one instruction in a line; or a single instruction may be split over multiple lines.
+
+The input assembly program may also have comments. A comment begins with "#" symbol and ends at the end of the line.
+
+When a program is evaluated, it starts with an empty stack. Program evaluation continues until the last instruction in the program is evaluated. When an input program is completely evaluated, the interpreter should print the top-most value on the stack and exit.
+
+If an input program has errors (e.g., improperly formed labels, invalid instruction, invalid format for numbers, labels that appear in destinations of jumps but not defined elsewhere, etc.), the interpreter should give an error message and exit without executing a single instruction. The details (i.e. the source of the error, line number, etc.) in the error message are up to you. All I expect is that your interpreter should at least say that there is some error and exit instead of trying to execute an erroneous program.
+
+Similarly, when executing a program, if the program tries to access values in an empty stack, the interpreter should signal an error and exit; and if the program tries to access a value in a cell in store without initializing the cell first, it should signal an error and exit. Again, you can choose the error message format.
+
+Part 2: SC Compiler
+
+SC is a simple calculator language. An SC program consists of a sequence of assignment statements. Values are stored in variables (as in any procedural language). For this assignment, SC manipulates only integer values.
+Variables are identifiers, represented by sequences of alphabetic characters or numeric characters or underscore ("_"), beginning with an alphabetic character.
+Integer Constants are non-empty sequences of digits (e.g. 23), optionally preceded by a "~" (e.g. ~23) denoting a negative number.
+Expressions are integer arithmetic expressions over variables and integer constants, written in prefix notation. More formally,
+Every variable and integer constant is an expression.
+If E1 and E2 are expressions, so are
++ E1 E2
+- E1 E2
+* E1 E2
+/ E1 E2
+% E1 E2
+Parts of an expression are separated by one or more white spaces.
+Statements: An assignment statement is of the form
+v = E ;
+where v is a variable, and E is an expression.
+As stated earlier, an SC program is a sequence of statements. There is no need to complicate SC with comments and other kinds of statements at this time.
+Your task in Part 2 is to write a compiler that translates SC programs to SSM programs. Your compiler should take, from standard input, text representing an SC program. It should then output, on standard output, an SSM program that performs the same computation as the SC program.
+
+Static Semantics: Your compiler will check if the input program is syntactically valid. It should also check that every variable is initialized before it is used. It should end with appropriate error messages if the above two constraints are violated. It should output a valid SSM program if the above two constraints are satisfied.
+
+Examples:
+
+Example 1 (SSM):
+Input:
+ildc 10
+ildc 20
+iadd
+	    
+Output:
+30
+	    
+Example 2 (SSM):
+Input:
+      ildc 20
+      ildc 5
+here: ildc 1
+      isub
+      dup
+      jz   there
+      swap
+      ildc 10
+      iadd
+      swap
+      jmp  here
+there:
+      pop
+	    
+Output:
+60
+	    
+Example 3 (SC):
+Input:
+   x = 10;
+   y = - x 1;
+   z = * x * y + x y;
+	    
+Output:
+   ildc 0
+   ildc 10
+   store
+   ildc 1
+   ildc 0
+   load
+   ildc 1
+   isub
+   store
+   ildc 2
+   ildc 0
+   load
+   ildc 1
+   load
+   ildc 0
+   load
+   ildc 1
+   load
+   iadd
+   imul
+   imul
+   store
+	    
+Project Path:
+
+Work on SSM first. Initially assume that your input will always be only valid (error-free) programs, and that too, without labels. Example 1 above is one such program.
+Second, consider SSM programs without labels that may have errors. Now you have to first check for errors before you try to execute an input program. Modify your code to do this.
+
+Only after you have successfully completed the first two steps, consider programs with labels and comments.
+
+After finishing SSM, take up SC. Again, start with assuming that the input is always a valid SC program (i.e. syntactically correct and does all variables are initialized before use). Work on signalling syntax errors next, and finally, work on checking for initialization.
+
+Grading:
+
+Part 1 will be graded out of 20 points overall: 10 points for correct evaluation of valid programs; 6 points for error reporting; and 4 points for clarity of code and documentation.
+Part 2 will be graded out of 10 points overall: 4 points for correct translation of valid programs; 2 points for correct detection of syntax errors; 3 points for correct detection of use-before-initialization errors; and 1 point for clarity of code and documentation.
+I am not asking for extensive documentation, but it must be easy to understand what is going on from your code and associated comments.
+Note that CSE 304 students are expected to submit only Part 1, which means they will be graded out of 20 points. Howeve, CSE 504 students are expected to submit both parts, so their maximum grade will be 30 points.
+
+Submission:
+
+Submit the assignment by placing the program files (one for each part) in HW1 folder in your local homework working copy. Tag each submission with a tag such as "s1", "s2" etc. referring to submitted versions. Commit and push these folders to the remote git repository. We will grade the latest version unless you specifically request an earlier version to be graded.
+Submissions received before end of day (11:59pm) on the due date will be considered on time. Submissions done a little after midnight may also be considered without penalty, at the instructor's and grader's discretion.
+
+Change Log:
+
+Original Handout. No changes (yet).
+Wed Feb 3 13:21:31 EST 2016:
+The description of some SSM instructions that take multiple arguments were confusing and had a few errors. The descriptions have been elaborated. The instructions with changed descriptions are isub, idiv, imul, and store.
+Example 3 (SC) had a missing store at the end. This has been fixed.
