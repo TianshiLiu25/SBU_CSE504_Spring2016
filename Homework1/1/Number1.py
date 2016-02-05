@@ -27,36 +27,54 @@ def inputProcess():
         if tempCommands[i].find('\n') or tempCommands[i].find('#'):
             # the line above is stupid, don't know better way to do it
             commands += ' '
-            spaceCount = 1
-            for j in range(0,max(tempCommands[i].find('\n'), tempCommands[i].find('#')),1):
-                #copy and eliminate extra ' '
-                #However, this part might doesn't matter at all because of split
-                if (tempCommands[i][j] == ' ' or tempCommands[i][j] == ' ')and spaceCount ==0 :
-                    commands += ' '
+            if (tempCommands[i].find('#') == -1 ):
+                if tempCommands[i].find('\n') == -1:
+                    temp=len(tempCommands[i])
                 else:
-                    commands += tempCommands[i][j]
-                    spaceCount = 0
+                    temp=tempCommands[i].find('\n')
+            else:
+                temp=tempCommands[i].find( '#' )
+            commands += tempCommands[i][:temp]
     commands = commands.split()
-'''
+
     for i in range(0,len(commands)-1,1):
         #input grammar chack if fails, exit
         if commands[i] in ['ildc',                       #Fellowed by num
                           ]:
-            if ~commands[i+1].isnumeric():
-                print("error")
-                exit()
+            for j in range(0,len(commands[i+1])-1):
+                    if (commands[i+1][j].isdigit())==False:
+                        print("Error: not argument for command")
+                        exit();
         elif commands[i] in [
                            'iadd','isub','imul','idiv'
                            'pop','dup','swap'
-                           'load','store'                #Related to store
+                           'load','store','pop'            #Related to store
                           ]:
+            pass
         elif commands[i] in [
                            'jz','jnz', 'jmp'                  #Fellowed by label
                           ]:
-            errorflag = 0
-            if ~commands[i+1][0]
-        elif
-'''
+            flag = True
+            if commands[i+1][0] in range('a','z') == False:
+                flag = False
+            else:
+                for j in range(1,len(commands[i+1]-1)):
+                    if (commands[i+1][j].isalpha() or commands[i+1][j] in range(0,9) or commands[i+1][j] == '_') == False:
+                        flag = False
+                        break
+            if flag == False:
+                print("Error:label not match requirement")
+                exit()
+            if max(commands.Find(commands[i+1],0,i)+':') == -1:
+                print("Error:Jump to Label not find")
+                exit()
+            i += 1
+        else:
+            temp = max(commands.Index(commands[i],0,i),commands.Find(commands[i],i+1,len(commands)-1))
+            # the other one
+            if commands[temp]+':' == commands[i]  and commands[temp-1] in ['jz','jnz', 'jmp' ] and commands[i][len(commands[i])-1]:
+                print('Error:label not called')
+
 #'ildc',                       #Fellowed by num
 #'iadd','isub','imul','idiv'
 #'pop','dup','swap'
@@ -116,9 +134,7 @@ def calcProcess():
             b = stack.pop()
             store[b] = a
         i += 1
-        print(stack)
 
 inputProcess()
 calcProcess()
-print (commands)
-print(stack)
+print(int(stack.pop()))
