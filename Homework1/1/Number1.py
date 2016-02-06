@@ -1,84 +1,105 @@
 import sys
 import string
 
-mode = "test"   # test mode input from file
-#mode = "submit"   # submit mode keyboard input
+#mode = "test"   # test mode input from file
+mode = "submit"   # submit mode keyboard input
 
 commands = ""
 stack = []
 store = [1000]
-jumpRegister = [] # note 2 num is used as a group
+
+def labelCheck(label,colon = False):
+    #check label name validness
+    #label the string to check; colon if the label end with colon
+    if colon == True and label[len(label)-1] != ':':
+        return False
+    else:
+        label = label[:len(label)-1]
+    if label[0] in string.lowercase:
+        for digit in label[1:]:
+            if not (digit.isdigit() or digit in string.lowercase or digit == '_'):
+                return  False
+    else:
+        return False
+    return  True
 
 def inputProcess():
     #load the commands and check it's validity
     global commands
     global jumpRegister
     tempCommands = []
+
+    #load commands
     if mode == "test":
         f = open("input2.txt")
         tempCommands = f.readlines()
         f.close()
     else:
-        for line in sys.stdin:   #problem with sys don't know why
-            tempCommands.append (line)
+        for line in sys.stdin:
+            tempCommands.append(line)
 
     for i in range(0,len(tempCommands),1):
-        #process of comment and return
-        if tempCommands[i].find('\n') or tempCommands[i].find('#'):
-            # the line above is stupid, don't know better way to do it
-            commands += ' '
-            if (tempCommands[i].find('#') == -1 ):
-                if tempCommands[i].find('\n') == -1:
-                    temp=len(tempCommands[i])
-                else:
-                    temp=tempCommands[i].find('\n')
+        #process of comment and combine lines
+        if (tempCommands[i].find('#') == -1 ):
+            if tempCommands[i].find('\n') == -1:
+                temp=len(tempCommands[i])
             else:
-                temp=tempCommands[i].find( '#' )
-            commands += tempCommands[i][:temp]
-    commands = commands.split()
+                temp=tempCommands[i].find('\n')
+        else:
+            temp=tempCommands[i].find( '#' )
+        commands += tempCommands[i][:temp]
+        commands += ' '
 
-    for i in range(0,len(commands)-1,1):
+    #split base on ' '
+    commands = commands.split()
+    print(commands)
+
+    i=0
+    while i < len(commands):
         #input grammar chack if fails, exit
+        print(i,commands[i])
         if commands[i] in ['ildc',                       #Fellowed by num
                           ]:
-            for j in range(0,len(commands[i+1])-1):
-                    if (commands[i+1][j].isdigit())==False:
-                        print("Error: not argument for command")
-                        exit();
+            if commands[i+1].isdigit() == False:
+                print("Error: ildc + num wrong")
+                exit()
+            i += 1
         elif commands[i] in [
                            'iadd','isub','imul','idiv'
-                           'pop','dup','swap'
+                           'pop','dup','swap',
                            'load','store','pop'            #Related to store
                           ]:
             pass
         elif commands[i] in [
                            'jz','jnz', 'jmp'                  #Fellowed by label
                           ]:
-            flag = True
-            if commands[i+1][0] in range('a','z') == False:
-                flag = False
+            if labelCheck(commands[i+1],False):
+                if not (commands.count(commands[i+1]+':') == 1):
+                    #print(commands.count(commands[i+1]+':'),commands[i+1]+':',commands[4])
+                    print("Error: no where to jump to")
+                    exit()
             else:
-                for j in range(1,len(commands[i+1]-1)):
-                    if (commands[i+1][j].isalpha() or commands[i+1][j] in range(0,9) or commands[i+1][j] == '_') == False:
-                        flag = False
-                        break
-            if flag == False:
-                print("Error:label not match requirement")
-                exit()
-            if max(commands.Find(commands[i+1],0,i)+':') == -1:
-                print("Error:Jump to Label not find")
+                print("label check failed 1")
                 exit()
             i += 1
-        else:
-            temp = max(commands.Index(commands[i],0,i),commands.Find(commands[i],i+1,len(commands)-1))
-            # the other one
-            if commands[temp]+':' == commands[i]  and commands[temp-1] in ['jz','jnz', 'jmp' ] and commands[i][len(commands[i])-1]:
-                print('Error:label not called')
+        elif not labelCheck(commands[i],True):
+            if (commands.count(commands[i][:len(commands[i])-1]) == 1):
+                print("Error: no matching jump command")
+                exit()
+            else:
+                print(commands[i][:len(commands[i])-1])
+                print(commands.count(commands[:len(commands[i])-1]))
 
+                print("label check failed 2")
+                exit()
+        i += 1
+#end of funciton input Process
+
+#semantics
 #'ildc',                       #Fellowed by num
 #'iadd','isub','imul','idiv'
 #'pop','dup','swap'
-#'jz','jnz',                   #Fellowed by label
+#'jz','jnz','jump',                   #Fellowed by label
 #'load','store'                #Related to store
 def calcProcess():
     i=0
