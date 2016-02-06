@@ -1,12 +1,12 @@
 import sys
 import string
 
-#mode = "test"   # test mode input from file
-mode = "submit"   # submit mode keyboard input
+mode = "test"   # test mode input from file
+#mode = "submit"   # submit mode keyboard input
 
 commands = ""
 stack = []
-store = [1000]
+store = []
 
 def labelCheck(label,colon = False):
     #check label name validness
@@ -22,6 +22,14 @@ def labelCheck(label,colon = False):
     else:
         return False
     return  True
+
+def rpop(list):
+    #the pop check
+    if stack:
+        return stack.pop()
+    else:
+        print ("Error: pop a empty stack")
+        exit()
 
 def inputProcess():
     #load the commands and check it's validity
@@ -52,16 +60,15 @@ def inputProcess():
 
     #split base on ' '
     commands = commands.split()
-    print(commands)
 
     i=0
     while i < len(commands):
         #input grammar chack if fails, exit
-        print(i,commands[i])
+        #print(i,commands[i])
         if commands[i] in ['ildc',                       #Fellowed by num
                           ]:
-            if commands[i+1].isdigit() == False:
-                print("Error: ildc + num wrong")
+            if not(commands[i+1].isdigit() == True or (commands[i+1][1:].isdigit() == True and commands[i+1][0] == '-')):
+                print("Error: ildc + num wrong ",commands[i+1],commands[i+1][1:].isdigit() == True, commands[0] == '-')
                 exit()
             i += 1
         elif commands[i] in [
@@ -83,22 +90,24 @@ def inputProcess():
                 exit()
             i += 1
         elif not labelCheck(commands[i],True):
-            if (commands.count(commands[i][:len(commands[i])-1]) == 1):
+            print("label check failed 2  " + commands[i])
+            exit()
+        elif labelCheck(commands[i],True):
+            if not (commands.count(commands[i][:len(commands[i])-1]) == 1):
                 print("Error: no matching jump command")
                 exit()
-            else:
-                print(commands[i][:len(commands[i])-1])
-                print(commands.count(commands[:len(commands[i])-1]))
-
-                print("label check failed 2")
-                exit()
+        else:
+            exit()
+            print("Error: input not standard" + commands[i])
         i += 1
+
+
 #end of funciton input Process
 
 #semantics
 #'ildc',                       #Fellowed by num
 #'iadd','isub','imul','idiv'
-#'pop','dup','swap'
+#'rpop','dup','swap'
 #'jz','jnz','jump',                   #Fellowed by label
 #'load','store'                #Related to store
 def calcProcess():
@@ -109,53 +118,63 @@ def calcProcess():
             stack.append(string.atof(commands[i+1]))
             i += 1
         elif keyWord == 'iadd':
-            a = stack.pop()
-            b = stack.pop()
+            a = rpop(list)
+            b = rpop(list)
             stack.append(a+b)
 
         elif keyWord == 'isub':
-            a = stack.pop()
-            b = stack.pop()
+            a = rpop(list)
+            b = rpop(list)
             stack.append(b-a)
         elif keyWord == 'imul':
-            a = stack.pop()
-            b = stack.pop()
+            a = rpop(list)
+            b = rpop(list)
             stack.append(a*b)
         elif keyWord == 'idiv':
-            a = stack.pop()
-            b = stack.pop()
+            a = rpop(list)
+            b = rpop(list)
             stack.append(b/a)
 
         elif keyWord == 'pop':
-            a = stack.pop()
+            if (stack):
+                a = rpop(list)
+            else:
+                print("Error: pop a empty stack")
+                exit()
         elif keyWord == 'dup':
-            a = stack.pop()
+            a = rpop(list)
             stack.append(a)
             stack.append(a)
         elif keyWord == 'swap':
-            a = stack.pop()
-            b = stack.pop()
+            a = rpop(list)
+            b = rpop(list)
             stack.append(a)
             stack.append(b)
 
         elif keyWord == 'jz':
-            if stack.pop() == 0:
+            if rpop(list) == 0:
                 i = commands.index(commands[i+1]+":")
         elif keyWord == 'jnz':
-            if stack.pop() != 0:
+            if rpop(list) != 0:
                 i = commands.index(commands[i+1]+":")
         elif keyWord == 'jmp':
             i = commands.index(commands[i+1]+":")
         elif keyWord == 'load':
-            a = stack.pop()
-            store[a] = a
-            ##might be wrong
+            if store[a] != 'empty':
+                a = rpop(list)
+                store[a] = a
+            else:
+                print ("Error: not inti store is loaded")
         elif keyWord == 'store':
-            a = stack.pop()
-            b = stack.pop()
+            a = rpop(list)
+            b = rpop(list)
             store[b] = a
         i += 1
 
+
+#main
+for i in range(1000):
+    store.append("empty")  #since only digit is stored, it's ok to use empty
 inputProcess()
 calcProcess()
-print(int(stack.pop()))
+print(int(rpop(list)))
