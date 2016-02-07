@@ -1,2 +1,22 @@
-
-      pop
+ildc 0
+ildc 10
+store
+ildc 1
+ildc 0
+load
+ildc 1
+isub
+store
+ildc 2
+ildc 0
+load
+ildc 1
+load
+ildc 0
+load
+ildc 1
+load
+iadd
+imul
+imul
+store

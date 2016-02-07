@@ -29,7 +29,8 @@ def rpop(list):
     if stack:
         return stack.pop()
     else:
-        print ("Error: pop a empty stack")
+        print ("Error: the stack is empty, cannot pop")
+        print (i)
         exit()
 
 def inputProcess():
@@ -73,7 +74,7 @@ def inputProcess():
                 exit()
             i += 1
         elif commands[i] in [
-                           'iadd','isub','imul','idiv'
+                           'iadd','isub','imul','idiv','imod'
                            'pop','dup','swap',
                            'load','store','pop'            #Related to store
                           ]:
@@ -112,11 +113,12 @@ def inputProcess():
 #'jz','jnz','jump',                   #Fellowed by label
 #'load','store'                #Related to store
 def calcProcess():
+    global i
     i=0
     while i < len(commands):
         keyWord = commands[i]
         if keyWord == 'ildc':
-            stack.append(string.atof(commands[i+1]))
+            stack.append(int(string.atof(commands[i+1])))
             i += 1
         elif keyWord == 'iadd':
             a = rpop(list)
@@ -135,12 +137,15 @@ def calcProcess():
             a = rpop(list)
             b = rpop(list)
             stack.append(b/a)
-
+        elif keyWord == 'imod':
+            a = rpop(list)
+            b = rpop(list)
+            stack.append(b%a)
         elif keyWord == 'pop':
             if (stack):
                 a = rpop(list)
             else:
-                print("Error: pop a empty stack")
+                print("Error: stack is empty cannot laod")
                 exit()
         elif keyWord == 'dup':
             a = rpop(list)
@@ -161,11 +166,12 @@ def calcProcess():
         elif keyWord == 'jmp':
             i = commands.index(commands[i+1]+":")
         elif keyWord == 'load':
+            a = rpop(list)
             if store[a] != 'empty':
-                a = rpop(list)
-                store[a] = a
+                stack.append(store[a])
             else:
-                print ("Error: not inti store is loaded")
+                print ("Error: store is not intitalized before use ")
+                exit()
         elif keyWord == 'store':
             a = rpop(list)
             b = rpop(list)
