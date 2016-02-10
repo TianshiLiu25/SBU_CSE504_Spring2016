@@ -16,6 +16,8 @@ ildc 0
 load
 ildc 1
 load
+ildc 10
+imod
 iadd
 imul
 imul

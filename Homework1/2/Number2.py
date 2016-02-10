@@ -2,8 +2,8 @@
 import sys
 import string
 
-#mode = "test"   # test mode input from file
-mode = "submit"   # submit mode keyboard input
+mode = "test"   # test mode input from file
+#mode = "submit"   # submit mode keyboard input
 commands = ""
 vari = []
 value = []

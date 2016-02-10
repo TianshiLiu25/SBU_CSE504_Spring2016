@@ -2,8 +2,8 @@
 import sys
 import string
 
-#mode = "test"   # test mode input from file
-mode = "submit"   # submit mode keyboard input
+mode = "test"   # test mode input from file
+#mode = "submit"   # submit mode keyboard input
 
 commands = ""
 stack = []
@@ -46,6 +46,8 @@ def inputProcess():
         f.close()
     else:
         for line in sys.stdin:
+            if line == "end of file":
+                break
             tempCommands.append(line)
 
     for i in range(0,len(tempCommands),1):
@@ -74,7 +76,7 @@ def inputProcess():
                 exit()
             i += 1
         elif commands[i] in [
-                           'iadd','isub','imul','idiv','imod'
+                           'iadd','isub','imul','idiv','imod',
                            'pop','dup','swap',
                            'load','store','pop'            #Related to store
                           ]:
@@ -167,6 +169,9 @@ def calcProcess():
             i = commands.index(commands[i+1]+":")
         elif keyWord == 'load':
             a = rpop(list)
+            if a < 0:
+                print("Error: the store address is negative")
+                exit()
             if store[a] != 'empty':
                 stack.append(store[a])
             else:
@@ -184,4 +189,7 @@ for i in range(1000):
     store.append("empty")  #since only digit is stored, it's ok to use empty
 inputProcess()
 calcProcess()
-print(int(rpop(list)))
+if(mode == 'test'):
+    print(store[2])
+else:
+    print(int(rpop(list)))
