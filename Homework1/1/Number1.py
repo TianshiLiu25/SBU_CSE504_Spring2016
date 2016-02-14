@@ -190,6 +190,6 @@ for i in range(1000):
 inputProcess()
 calcProcess()
 if(mode == 'test'):
-    print(store[2])
+    print(store[1])
 else:
     print(int(rpop(list)))

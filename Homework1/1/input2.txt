@@ -1,24 +1,19 @@
 ildc 0
 ildc 10
-store
-ildc 1
-ildc 0
-load
-ildc 1
-isub
-store
-ildc 2
-ildc 0
-load
-ildc 1
-load
-ildc 0
-load
-ildc 1
-load
-ildc 10
+ildc 11
+ildc 12
 imod
+idiv
+ildc 13
+imul
+ildc 14
+isub
+ildc 15
 iadd
-imul
-imul
+store
+ildc 1
+ildc 0
+load
+ildc 1
+iadd
 store
