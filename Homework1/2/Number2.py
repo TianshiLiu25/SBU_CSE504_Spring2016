@@ -7,6 +7,8 @@ mode = "test"   # test mode input from file
 commands = ""
 vari = []
 value = []
+result = ""
+
 def labelCheck(label,colon = False):
     #check label name validness
     #label the string to check; colon if the label end with colon
@@ -44,6 +46,9 @@ def inputProcess():
             tempCommands.append(line)
 
     for i in range(0,len(tempCommands),1):
+        if ((tempCommands[i].find('~ ')!=-1)or(tempCommands[i].find('~\n')!=-1)or(tempCommands[i].find('~\t')!=-1)):
+            print('Error: illegal use of ~')
+            exit()
         #process of comment and combine lines
         if (tempCommands[i].find(';') != -1 ):
             tempCommands[i] = tempCommands[i].replace(';',' ; ')
@@ -65,6 +70,8 @@ def inputProcess():
     opeNum = 0
     numNum = 0
     newline = 0
+    result = 0
+    startIndex = 0
     variNum = 0
     while i < len(commands):
         # syntax check
@@ -76,11 +83,13 @@ def inputProcess():
             else:
                 if commands[i] not in vari:
                     vari.append(commands[i])
+                    result = len(vari)-1
+                    value.append("empty")
                 newline += 1
         elif newline == 1:
             if not commands[i] == '=':
                 print("Error: = not found")
-                exit();
+                exit()
             else:
                 newline = -1 #close the new line process
         elif commands[i] == ';':
@@ -88,8 +97,11 @@ def inputProcess():
                 newline = 0 # restart new line process
                 opeNum = 0
                 numNum = 0
+                value[result] = "initalized"
+                opeNum = 0
+                numNum = 0
             else:
-                print("Error: operator number and operand number not match")
+                print("Error: operator number and operand number not match")  #fix
                 exit()
         elif commands [i] == '~':
             if commands [i+1].isdigit():
@@ -104,15 +116,25 @@ def inputProcess():
         elif commands[i] in ['+','-','*','/','%']:
             opeNum += 1
         elif commands[i] in vari:
-            numNum += 1
+            if value[vari.index(commands[i])] == "initalized":
+                numNum += 1
+            else:
+                print("Error: variable defined but not initalized")
+                exit()
         else:
             print(commands[i],commands[i+1])
             print("Error: syntax wrong or use variable without initialize")
             exit()
         i += 1
+    for i in range(0, len(commands), 1):
+        if(commands[i] == '~') :
+            commands.remove("~")
+            break
+
     #print("syntax check success")
 
 def compile():
+    global result,commands
     i=0
     lineStart = 0;
     lineEnd = 0;
@@ -120,36 +142,48 @@ def compile():
         # compile
         lineEnd = commands.index(";",lineStart)
 
-        print("ildc "+str(vari.index(commands[lineStart])))  # x =
-
-        for i in range(lineStart+2,lineEnd,1):
-            # process of operand
-            # process in forward order
-            # skip the x =
-            # note range (x,y,z)  is like i = x ; i < y ; i++
-            # and the i++ in the circulate doesn't work
-            if commands[i].isdigit():
-                print("ildc "+ str(int(string.atof(commands[i]))))
-            if commands[i] in vari:
-                print("ildc " + str(vari.index(commands[i])))
-                print("load")
-
-        for i in range(lineEnd-1,lineStart-1,-1):
-            # process of =-*/%
-            # process in reverse order
-            if commands[i] in ['+','-','*','/','%']:
-                if commands[i] == '+':
-                    print "iadd"
-                if commands[i] == '-':
-                    print "isub"
-                if commands[i] == '*':
-                    print "imul"
-                if commands[i] == '/':
-                    print "idiv"
-                if commands[i] == '%':
-                    print "imod"
-        print ("store")
+        result += "ildc "+str(vari.index(commands[lineStart])) + '\n'  # x =
+        linestart = syntaxCheck(lineStart+2)
+        if(linestart != lineEnd):
+            print("Error: Syntax error!")
+            exit()
+        result += "store\n"
         lineStart = lineEnd + 1
 
+def syntaxCheck(i) :
+    if (i<0):
+        return i
+    global vari,valuen,result
+    op = ""
+    if(commands[i].isdigit() or (len(commands) > 1 and commands[i][0] == '-' and commands[i][1:].isdigit())) :
+        result += "ildc "
+        result += str(int(string.atof(commands[i])))+'\n'
+        return i + 1
+    elif commands[i] in vari:
+        result += "ildc " + str(vari.index(commands[i]))+'\n'
+        result += "load" + '\n'
+        return i+1
+    elif commands[i] in ['+','-','*','/','%']:
+        if commands[i] == '+':
+            op = "iadd"
+        if commands[i] == '-':
+            op = "isub"
+        if commands[i] == '*':
+            op = "imul"
+        if commands[i] == '/':
+            op = "idiv"
+        if commands[i] == '%':
+            op = "imod"
+        i = syntaxCheck(i+1)
+        i = syntaxCheck(i)
+        result += op + '\n'
+        return i
+    else:
+        return -1
+
+def output():
+    global result
+    print(result)
 inputProcess()
 compile()
+output()
