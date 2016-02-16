@@ -2,8 +2,8 @@
 import sys
 import string
 
-mode = "test"   # test mode input from file
-#mode = "submit"   # submit mode keyboard input
+#mode = "test"   # test mode input from file
+mode = "submit"   # submit mode keyboard input
 commands = ""
 vari = []
 value = []
@@ -133,9 +133,8 @@ def inputProcess():
 
     #print("syntax check success")
 
-def compile():
+def myCompile():
     global result,commands
-    i=0
     lineStart = 0;
     lineEnd = 0;
     while lineStart < len(commands):
@@ -185,5 +184,5 @@ def output():
     global result
     print(result)
 inputProcess()
-compile()
+myCompile()
 output()

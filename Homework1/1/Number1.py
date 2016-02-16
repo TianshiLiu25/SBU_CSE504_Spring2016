@@ -2,8 +2,8 @@
 import sys
 import string
 
-mode = "test"   # test mode input from file
-#mode = "submit"   # submit mode keyboard input
+#mode = "test"   # test mode input from file
+mode = "submit"   # submit mode keyboard input
 
 commands = ""
 stack = []
@@ -46,8 +46,6 @@ def inputProcess():
         f.close()
     else:
         for line in sys.stdin:
-            if line == "end of file":
-                break
             tempCommands.append(line)
 
     for i in range(0,len(tempCommands),1):
@@ -93,13 +91,16 @@ def inputProcess():
                 print("label check failed 1")
                 exit()
             i += 1
-        elif not labelCheck(commands[i],True):
-            print("label check failed 2  " + commands[i])
-            exit()
-        elif labelCheck(commands[i],True):
-            if not (commands.count(commands[i][:len(commands[i])-1]) == 1):
-                print("Error: no matching jump command")
+        elif commands[i][len(commands[i]) - 1] == ':': 
+            if not labelCheck(commands[i],True):
+                print("label check failed 2  " + commands[i])
+                exit()  
+            if commands.count(commands[i]) > 1:
+                print("duplicate label");
                 exit()
+#            if not (commands.count(commands[i][:len(commands[i])-1]) == 1):
+#                print("Error: no matching jump command")
+#                exit()
         else:
             exit()
             print("Error: input not standard" + commands[i])
@@ -146,6 +147,7 @@ def calcProcess():
         elif keyWord == 'pop':
             if (stack):
                 a = rpop(list)
+                store[0] = a
             else:
                 print("Error: stack is empty cannot laod")
                 exit()
