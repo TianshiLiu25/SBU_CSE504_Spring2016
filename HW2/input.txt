@@ -1,0 +1,22 @@
+class a extends b {
+	public static int a[], b[][];
+	
+	private static a() {
+		int a;
+	}
+	
+	public static void k(int a, int b)
+	{
+	    for(i = 1; i <= 10; i++) 
+	    	if(k) {
+	    	} else {
+	    	}
+	    i = 1;
+	    cas[3].asd.wad(3 * 2 + 5);
+	    int a,a[][], b[];
+	    b = new int[30];
+	    continue;
+	    break;
+	    return 1; 
+	}
+}
