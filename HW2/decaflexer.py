@@ -112,7 +112,7 @@ t_SEMICOLON = r';'
 
 # A regular expression rule with some action code
 def t_FLOAT_CONST(t):
-    r'((\d+)(\.\d+)(e(\+|-)?(\d+))? | (\d+)e(\+|-)?(\d+))'
+    r'((\d+)(\.\d+)([Ee](\+|-)?(\d+))? | (\d+)[Ee](\+|-)?(\d+))'
     t.value = float(t.value)
     return t
 def t_INT_CONST(t):
