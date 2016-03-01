@@ -39,8 +39,8 @@ for i in range(0, len(rin)):
 #     linesum[i] = linesum[i - 1]
 inputstring += " MYPROGRAMENDPOINT"
 lexer1.input(inputstring)
-# for token in lexer1:
-#     print token
+for token in lexer1:
+    print token
 myparser = yacc.yacc(module=decafparser,debug=True,debuglog=log)
 result = myparser.parse(lexer=lexer1, tracking=True,debug=log)
 if result == 'Correct' :  

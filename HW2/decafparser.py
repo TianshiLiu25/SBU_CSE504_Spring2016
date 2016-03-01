@@ -201,16 +201,22 @@ def p_stmt_summary1(p):
 def p_noncompleteif_if(p):
     'noncompleteif_stmt : IF LPAREN expr RPAREN stmt'
     p[0] = p[5]
+    if(p[3] == 'Error'):
+        p[0] = 'Error'
 ###### ifelse
 def p_noncompleteif_ifelse(p):
     'noncompleteif_stmt : IF LPAREN expr RPAREN other_stmt ELSE noncompleteif_stmt'
     if(p[5] == 'Correct' and p[7] == 'Correct'):
         p[0] = 'Correct'
+    if(p[3] == 'Error'):
+        p[0] = 'Error' 
 ###### while
 def p_noncompleteif__while(p): 
     'noncompleteif_stmt : WHILE LPAREN expr RPAREN noncompleteif_stmt'
     if(p[5] == 'Correct') :
         p[0] = 'Correct'
+    if(p[3] == 'Error') :
+        p[0] = 'Error'
 ###### for
 def p_noncompleteif_for(p):
     'noncompleteif_stmt : forbasic noncompleteif_stmt'
@@ -222,10 +228,14 @@ def p_other_stmt_complete_if(p):
     'other_stmt : IF LPAREN expr RPAREN other_stmt ELSE other_stmt'
     if(p[5] == 'Correct' and p[7] == 'Correct'):
         p[0] = 'Correct'
+    if(p[3] == 'Error') :
+        p[0] = 'Error'
 ###### while
 def p_other_stmt_complete_while(p): 
     'other_stmt : WHILE LPAREN expr RPAREN other_stmt'
     p[0] = p[5]
+    if(p[3] == 'Error') :
+        p[0] = 'Error'
 ###### for
 def p_forbasic1(p):
     '''forbasic1 : FOR LPAREN SEMICOLON
@@ -238,6 +248,8 @@ def p_forbasic2(p):
     '''forbasic2 : forbasic1 SEMICOLON
                  | forbasic1 expr SEMICOLON'''
     p[0] = p[1]
+    if(p[2] == 'Error') :
+        p[0] = 'Error'
 def p_forbasic(p):
     '''forbasic : forbasic2 RPAREN
                 | forbasic2 stmt_expr RPAREN'''
@@ -255,6 +267,8 @@ def p_other_stmt_return(p):
     '''other_stmt : RETURN SEMICOLON
                   | RETURN expr SEMICOLON'''
     p[0] = 'Correct'
+    if(p[2] == 'Error') :
+        p[0] = 'Error'
 def p_other_stmt_return_error(p):
     '''other_stmt : RETURN error
                   | RETURN expr error'''
