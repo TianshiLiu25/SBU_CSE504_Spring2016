@@ -5,14 +5,24 @@ import ply.yacc as yacc
 
 import decaflexer
 import decafparser
-linesum = []
+
+import logging
+logging.basicConfig(
+    level = logging.DEBUG,
+    filename = "parselog.txt",
+    filemode = "w",
+    format = "%(filename)10s:%(lineno)4d:%(message)s"
+)
+log = logging.getLogger()
+
+# linesum = []
 
 testmode = "debug"
 #testmode = "release"
 filename = ""
-inputstring = ""
+inputstring = "MYPROGRAMSTARTPOINT "
 
-lexer = lex.lex(module=decaflexer)
+lexer1 = lex.lex(module=decaflexer)
 if testmode == "debug":
     filename = "input.txt"
 else :
@@ -22,16 +32,18 @@ f = open(filename)
 rin = f.readlines()
 for i in range(0, len(rin)):
     inputstring += rin[i]
-    linesum.append(len(rin[i]))
-    if i != 0 :
-        linesum[i] += linesum[i - 1]
-for i in range(len(rin) - 1, 0, -1) :
-    linesum[i] = linesum[i - 1]
-
-lexer.input(inputstring)
-for token in lexer:
-    print token
-myparser = yacc.yacc(module=decafparser)
-result = myparser.parse(inputstring)
-if result == "Correct!" :  
-    print(result)
+#     linesum.append(len(rin[i]))
+#     if i != 0 :
+#         linesum[i] += linesum[i - 1]
+# for i in range(len(rin) - 1, 0, -1) :
+#     linesum[i] = linesum[i - 1]
+inputstring += " MYPROGRAMENDPOINT"
+lexer1.input(inputstring)
+# for token in lexer1:
+#     print token
+myparser = yacc.yacc(module=decafparser,debug=True,debuglog=log)
+result = myparser.parse(lexer=lexer1, tracking=True,debug=log)
+if result == 'Correct' :  
+    print('Yes')
+if len(myparser.statestack) > 2 : 
+    print('Syntax Error: Unexpected of EOF')

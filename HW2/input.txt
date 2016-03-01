@@ -1,22 +1,27 @@
-class a extends b {
+	/*3*/
+	//
+class a extends B {
 	public static int a[], b[][];
-	
-	private static a() {
+	/*3*/
+	public static int t() {
 		int a;
+		//
 	}
+
 	
 	public static void k(int a, int b)
 	{
-	    for(i = 1; i <= 10; i++) 
+		i = 01;
+	    for(i = 0; ; i++) 
 	    	if(k) {
 	    	} else {
 	    	}
 	    i = 1;
-	    cas[3].asd.wad(3 * 2 + 5);
-	    int a,a[][], b[];
-	    b = new int[30];
+	    cas[2323.a] = 1;
+	    int a, a[][], b[];
+	    b = new nt[3];
 	    continue;
 	    break;
-	    return 1; 
-	}
+	    return 1;
+	} 		    
 }

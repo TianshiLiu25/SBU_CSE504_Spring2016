@@ -7,112 +7,181 @@ from decaflexer import precedence
 
 def p_pp_print(p):
     'pp : program'
-#     print p[1]
+    p[0] = p[1]
     
 ## program
 def p_program(p):
-    'program : '
-def p_program_with_class(p):
-    'program : program class_decl'    
-
+    '''program : MYST
+               | program class_decl
+               | program MYED'''
+    if len(p) >= 3 and p[2] != 'MYPROGRAMENDPOINT':
+        if p[1] == 'Correct' :
+            p[0] = p[2]
+    elif len(p) >= 3:
+        p[0] = p[1]
+    else :
+        p[0] = 'Correct'
+def p_program_error(p):
+    '''program : program error'''
+    print "Syntax error in line %d: no 'class' word found!" %p.lineno(2)
+    
 ## class_decl 
-def p_class_decl1_no_extends(p):
-    'class_decl1 : CLASS ID LBIG'
-def p_class_decl1_extends(p):
-    'class_decl1 : CLASS ID EXTENDS ID LBIG'
+def p_class_decl1(p):
+    '''class_decl1 : CLASS ID LBIG
+                   | CLASS ID EXTENDS ID LBIG'''
+    p[0] = 'Correct'
+def p_class_decl1_class_error(p):
+    '''class_decl1 : error ID EXTENDS ID LBIG
+                   | error ID LBIG'''
+    print "Syntax error in line %d: no 'class' word found!" %p.lineno(1)
+def p_class_decl1_classname_error(p):
+    '''class_decl1 : CLASS error EXTENDS ID LBIG
+                   | CLASS error LBIG'''
+    print "Syntax error in line %d: class name is not validate" %p.lineno(2)
+def p_class_decl1_extends_error(p):
+    '''class_decl1 : CLASS ID error'''
+    print "Syntax error in line %d: 'extends' or '{' needed" %p.lineno(3)
+def p_class_decl1_LBIG_error(p):
+    '''class_decl1 : CLASS ID EXTENDS ID error'''
+    print "Syntax error in line %d: '{' needed" % p.lineno(5)
+    p[0] = 'Error'
 def p_class_decl2(p):
-    'class_decl2 : class_decl1 class_body_decl'
-def p_class_decl2_more(p):
-    'class_decl2 : class_decl2 class_body_decl'
+    '''class_decl2 : class_decl1 class_body_decl
+                   | class_decl2 class_body_decl'''
+    if p[1] == 'Correct' and p[2] == 'Correct' : 
+        p[0] = 'Correct' 
 def p_class_decl(p):
     'class_decl : class_decl2 RBIG'
+    if p[1] == 'Correct' :
+        p[0] = 'Correct'
+def p_class_decl_error(p):
+    'class_decl : class_decl2 error'
+    print "Syntax error in line %d: '}' needed or modifier needed" %p.lineno(2)
 
 ## class_body_decl
-def p_class_body_decl_field(p):
-    'class_body_decl : field_decl'
-def p_class_body_decl_method(p):
-    'class_body_decl : method_decl'
-def p_class_body_decl_constructor(p):
-    'class_body_decl : constructor_decl'
-
+def p_class_body_decl(p):
+    '''class_body_decl : field_decl
+                       | method_decl
+                       | constructor_decl'''
+    p[0] = p[1]
+    
 ## field_decl
 def p_field_decl(p):
     'field_decl : modifier var_decl'
+    if p[1] == 'Correct' and p[2] == 'Correct' :
+        p[0] = 'Correct'
     
 ## modifier 
-def p_modifier_first_public(p):
-    'modifier_first : PUBLIC'
-def p_modifier_first_private(p):
-    'modifier_first : PRIVATE'
-def p_modifier_no(p):
-    'modifier : modifier_first'
-def p_modifier_have(p):
-    'modifier : modifier_first STATIC'
+def p_modifier_first(p):
+    '''modifier_first : PUBLIC
+                      | PRIVATE'''
+    p[0] = 'Correct'
+# def p_modifier_first_error(p):
+#     '''modifier_first : error'''
+#     print("Syntax error in line %d: modifier not validate" %p.lineno(1))
+def p_modifier(p):
+    '''modifier : modifier_first
+                | modifier_first STATIC'''
+    p[0] = p[1]
     
 ## var_decl
 def p_var_decl(p):
     'var_decl : type variables SEMICOLON'
-    p[0] = 'var_decl'
+    if(p[1] == 'Correct' and p[2] == 'Correct') :
+        p[0] = 'Correct'
+def p_var_decl_error(p):
+    'var_decl : type variables error'
+    print("Syntax error in line %d: missing \';\' or '[' or ',' or '('" %p.lineno(1))
 
 ## type                        need
-def p_type_int(p): 
-    'type : INT'
-def p_type_float(p):
-    'type : FLOAT'
-def p_type_boolean(p):
-    'type : BOOLEAN'
-def p_type_id(p):
-    'type : ID'
+def p_type(p): 
+    '''type : INT
+            | FLOAT
+            | BOOLEAN
+            | ID'''
+    p[0] = 'Correct'
+def p_type_error(p):
+    'type : error'
+    print("Syntax error in line %d: Type error, type format not match" %p.lineno(1))
     
 ## variables
 def p_variables(p):
-    'variables : variable'
-    p[0] = "variables"
-def p_variables_more(p):
-    'variables : variables COMMA variable'
-    p[0] = "variables"
+    '''variables : variable
+                 | variables COMMA variable'''
+    if(len(p) > 2) : 
+        if(p[1] == 'Correct' and p[3] == 'Correct') :
+            p[0] = 'Correct'
+    else: 
+        p[0] = p[1]
 
 ## variable
 def p_variable(p):
-    'variable : ID'
-    p[0] = "variable"
-def p_variable_array(p):
-    'variable : variable LSQ RSQ'
-    p[0] = "variable"
+    '''variable : ID
+                | variable LSQ RSQ'''
+    p[0] = "Correct"
+def p_variable_RSQ_error(p):
+    '''variable : variable LSQ error '''
+    print("Syntax error in line %d: ']' needed" %p.lineno(1))
     
 ## method_decl
-def p_method_decl1_type(p):
-    'method_decl1 : modifier type ID LPAREN'
-def p_method_decl1_void(p):
-    'method_decl1 : modifier VOID ID LPAREN'
-def p_method_decl_formals(p):
-    'method_decl : method_decl1 formals RPAREN block'
-def p_method_decl_no(p):
-    'method_decl : method_decl1 RPAREN block'
+def p_method_decl1(p):
+    '''method_decl1 : modifier type ID LPAREN
+                    | modifier VOID ID LPAREN'''
+    if(p[2] == 'void') : 
+        p[0] = p[1]
+    else :
+        if(p[1] == 'Correct' and p[2] == 'Correct'):
+            p[0] = 'Correct'
+def p_method_decl(p):
+    '''method_decl : method_decl1 formals RPAREN block
+                   | method_decl1 RPAREN block'''
+    if(p[1] != 'Correct'): 
+        return
+    if(len(p) == 5):
+        if(p[len(p) - 1] == 'Correct' and p[2] == 'Correct') :
+            p[0] = 'Correct'
+    else:
+        p[0] = p[len(p) - 1] 
+        
 
 ## constructor_decl
-def p_constructor_decl_no(p):
-    'constructor_decl : modifier ID LPAREN RPAREN block'
-def p_constructor_decl_formals(p):
-    'constructor_decl : modifier ID LPAREN formals RPAREN block'
+def p_constructor_decl(p):
+    '''constructor_decl : modifier ID LPAREN RPAREN block
+                        | modifier ID LPAREN formals RPAREN block'''
+    if(len(p) == 6) :
+        p[0] = p[len(p) - 1]
+    else :
+        if(p[4] == 'Correct' and p[6] == 'Correct') :
+            p[0] = 'Correct'
+def p_constructor_decl_error(p):
+    '''constructor_decl : modifier ID error RPAREN block
+                        | modifier ID error formals RPAREN block'''
+    print("Syntax error in line %d: '(' needed" %p.lineno(1))
 
 ## formals 
 def p_formals_single(p):
-    'formals : formal_param'
-def p_formals_more(p):
-    'formals : formals COMMA formal_param'
-
+    '''formals : formal_param
+               | formals COMMA formal_param'''
+    if(len(p) < 3) :
+        p[0] = p[1]
+    else :
+        if(p[1] == 'Correct' and p[3] == 'Correct') :
+            p[0] = 'Correct' 
 ## formal_param
 def p_formal_param(p):
     'formal_param : type variable'
+    if(p[1] == 'Correct' and p[2] == 'Correct') :
+        p[0] = 'Correct' 
     
 ## block
 def p_block1_first(p):
-    'block1 : LBIG'
-    p[0] = "block";
-def p_block1_end(p):
-    'block1 : block1 stmt'
-    p[0] = p[2]
+    '''block1 : LBIG
+              | block1 stmt'''
+    if(len(p) == 3):
+        if(p[1] == 'Correct' and p[2] == 'Correct') :
+            p[0] = 'Correct'
+    else :
+        p[0] = 'Correct'
 def p_block(p):
     'block : block1 RBIG'
     p[0] = p[1]
@@ -121,102 +190,116 @@ def p_block(p):
 #### summary
 def p_stmt_summary(p):
     'stmt : noncompleteif_stmt'
-    p[0] = "non_complete_if"
+    p[0] = p[1]
 def p_stmt_summary1(p):
     'stmt : other_stmt'
-    p[0] = "other"
+    p[0] = p[1]
 #### noncompleteif_stmt
 ###### if
 def p_noncompleteif_if(p):
     'noncompleteif_stmt : IF LPAREN expr RPAREN stmt'
-    p[0] = "non_complete_if"
+    p[0] = p[5]
 ###### ifelse
 def p_noncompleteif_ifelse(p):
     'noncompleteif_stmt : IF LPAREN expr RPAREN other_stmt ELSE noncompleteif_stmt'
-    p[0] = "non_complete_ifelse"
+    if(p[5] == 'Correct' and p[7] == 'Correct'):
+        p[0] = 'Correct'
 ###### while
 def p_noncompleteif__while(p): 
     'noncompleteif_stmt : WHILE LPAREN expr RPAREN noncompleteif_stmt'
-    p[0] = "non_complete_while"
+    if(p[5] == 'Correct') :
+        p[0] = 'Correct'
 ###### for
 def p_noncompleteif_for(p):
     'noncompleteif_stmt : forbasic noncompleteif_stmt'
-    p[0] = "non_complete_for"
+    if(p[2] == 'Correct'):
+        p[0] = 'Correct'
 #### other_stmt 
 ###### complete_if
 def p_other_stmt_complete_if(p):
     'other_stmt : IF LPAREN expr RPAREN other_stmt ELSE other_stmt'
-    p[0] = "complete";
+    if(p[5] == 'Correct' and p[7] == 'Correct'):
+        p[0] = 'Correct'
 ###### while
 def p_other_stmt_complete_while(p): 
     'other_stmt : WHILE LPAREN expr RPAREN other_stmt'
-    p[0] = "while"
+    p[0] = p[5]
 ###### for
-def p_forbasic1_no(p):
-    'forbasic1 : FOR LPAREN SEMICOLON'
-def p_forbasic1_have(p):
-    'forbasic1 : FOR LPAREN stmt_expr SEMICOLON'
-def p_forbasic2_no(p):
-    'forbasic2 : forbasic1 SEMICOLON'
-def p_forbasic2_have(p):
-    'forbasic2 : forbasic1 expr SEMICOLON'
-def p_forbasic_no(p):
-    'forbasic : forbasic2 RPAREN'
-def p_forbasic_have(p):
-    'forbasic : forbasic2 stmt_expr RPAREN'
+def p_forbasic1(p):
+    '''forbasic1 : FOR LPAREN SEMICOLON
+                 | FOR LPAREN stmt_expr SEMICOLON'''
+    if(len(p) == 5) :
+        p[0] = p[3]
+    else :
+        p[0] = 'Correct'
+def p_forbasic2(p):
+    '''forbasic2 : forbasic1 SEMICOLON
+                 | forbasic1 expr SEMICOLON'''
+    p[0] = p[1]
+def p_forbasic(p):
+    '''forbasic : forbasic2 RPAREN
+                | forbasic2 stmt_expr RPAREN'''
+    if(len(p) == 4) :
+        if(p[1] == 'Correct' and p[2] == 'Correct'):
+            p[0] = 'Correct'
+    else :
+        p[0] = p[1]
 def p_other_stmt_for(p):
     'other_stmt : forbasic other_stmt'
-    p[0] = 'for'
+    if(p[1] == 'Correct' and p[2] == 'Correct') :
+        p[0] = 'Correct'
 ###### return
-def p_other_stmt_return_no(p):
-    'other_stmt : RETURN SEMICOLON'
-    p[0] = 'return'
-def p_other_stmt_return_have(p):
-    'other_stmt : RETURN expr SEMICOLON'
-    p[0] = 'return'
+def p_other_stmt_return(p):
+    '''other_stmt : RETURN SEMICOLON
+                  | RETURN expr SEMICOLON'''
+    p[0] = 'Correct'
+def p_other_stmt_return_error(p):
+    '''other_stmt : RETURN error
+                  | RETURN expr error'''
+    print("Syntax error in line %d: missing \';\'" %p.lineno(1))
 ###### stmt_expr
 def p_other_stmt_stmt_expr(p): 
     'other_stmt : stmt_expr SEMICOLON'
-    p[0] = "stmt_expr"
+    p[0] = p[1]
+def p_other_stmt_stmt_expr_error(p):
+    'other_stmt : stmt_expr error'
+    print("Syntax error in line %d: missing \';\'" %p.lineno(1))
 ###### break
 def p_other_stmt_break(p):
-    'other_stmt : BREAK'
-    p[0] = "break"
+    'other_stmt : BREAK SEMICOLON'
+    p[0] = 'Correct'
+def p_other_stmt_break_error(p):
+    'other_stmt : BREAK error'
+    print("Syntax error in line %d: missing \';\'" %p.lineno(1))
 ###### continue
 def p_other_stmt_continue(p):
-    'other_stmt : CONTINUE'
-    p[0] = "continue"
+    'other_stmt : CONTINUE SEMICOLON'
+    p[0] = "Correct"
+def p_other_stmt_continue_error(p):
+    'other_stmt : CONTINUE error'
+    print("Syntax error in line %d: missing \';\'" %p.lineno(1))
+    
 ###### block
 def p_other_stmt_block(p):
     'other_stmt : block'
-    p[0] = 'block'
+    p[0] = p[1]
 ###### var_decl 
 def p_other_stmt_var_decl(p):
     'other_stmt : var_decl'
-    p[0] = 'var_decl'    
+    p[0] = p[1]   
 ###### SEMICOLON
 def p_stmt_semicolon(p):
     'other_stmt : SEMICOLON'
-    p[0] = "semi"
+    p[0] = "Correct"
   
 ## literal
-def p_literal_int(p):
-    'literal : INT_CONST'
-    p[0] = p[1]
-def p_literal_float(p):
-    'literal : FLOAT_CONST'
-    p[0] = p[1]
-def p_literal_string(p):
-    'literal : STRING_CONST'
-    p[0] = p[1]
-def p_literal_null(p):
-    'literal : NULL'
-    p[0] = p[1]
-def p_literal_true(p):
-    'literal : TRUE'
-    p[0] = p[1]
-def p_literal_false(p):
-    'literal : FALSE'
+def p_literal(p):
+    '''literal : INT_CONST
+               | FLOAT_CONST
+               | STRING_CONST
+               | NULL
+               | TRUE
+               | FALSE'''
     p[0] = p[1]
       
 ## primary
@@ -241,10 +324,8 @@ def p_primary_pnew1(p):
     'pnew1 : NEW ID'
     p[0] = p[2]
 def p_primary_pnew(p):
-    'pnew : pnew1 LPAREN RPAREN'
-    p[0] = p[1]
-def p_primary_pnew_arg(p):
-    'pnew : pnew1 LPAREN arguments RPAREN'
+    '''pnew : pnew1 LPAREN RPAREN
+            | pnew1 LPAREN arguments RPAREN'''
     p[0] = p[1]
 def p_primary_summary(p):
     'primary : pnew'
@@ -260,10 +341,8 @@ def p_primary_method_invocation(p):
     
 ## arguments
 def p_argument_init(p):
-    'arguments : expr'
-    p[0] = p[1]
-def p_argument_follow(p):
-    'arguments : arguments COMMA expr'
+    '''arguments : expr
+                 | arguments COMMA expr'''
     p[0] = p[1]
       
 ## lhs                         need
@@ -359,18 +438,15 @@ def p_expr_not(p):
   
  
 ## newarray
-def p_newarray_p(p):
-    "newarray : newarrayp"
-def p_newarray_w(p):
-    "newarray : newarrayw"
-def p_newarrayw_follow(p):
-    "newarrayw : newarrayw LSQ RSQ"
-def p_newarrayw_first(p):
-    "newarrayw : newarrayp LSQ RSQ"
-def p_newarrayp_first(p):
-    "newarrayp : NEW type LSQ INT_CONST RSQ"
-def p_newarrayp_follow(p):
-    "newarrayp : newarrayp LSQ INT_CONST RSQ"
+def p_newarray(p):
+    '''newarray : newarrayp
+                | newarrayw'''
+def p_newarrayw(p):
+    '''newarrayw : newarrayw LSQ RSQ
+                 | newarrayp LSQ RSQ'''
+def p_newarrayp(p):
+    '''newarrayp : NEW type LSQ expr RSQ
+                 | newarrayp LSQ expr RSQ'''
           
 ## assign
 def p_assign_normal(p):
@@ -397,14 +473,16 @@ def p_assign_bdminus(p):
 ## stmt_expr
 def p_stmt_expr_assign(p):
     'stmt_expr : assign'
-    p[0] = p[1]
+    p[0] = 'Correct'
 def p_stmt_expr_method_invocation(p):
     'stmt_expr : method_invocation'
-    p[0] = p[1]
+    p[0] = 'Correct'
+def p_stmt_expr_error(p):
+    'stmt_expr : error'
+    print("Syntax error in line %d: statement expression syntax error!" %p.lineno(1))
 
-
-# Error rule for syntax errors
 def p_error(p):
-    print("Syntax error in input! " ), 
+    return
+    
 
 # Build the parser

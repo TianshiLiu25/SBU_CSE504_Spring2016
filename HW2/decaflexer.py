@@ -1,5 +1,6 @@
 import string
 import ply.lex as lex
+from ply.ctokens import t_COMMENT
 
 
 # null
@@ -29,6 +30,8 @@ reserved = {
     True : 'TRUE', 
     'void' : 'VOID', 
     'while' : 'WHILE',
+    'MYPROGRAMSTARTPOINT' : 'MYST',
+    'MYPROGRAMENDPOINT' : 'MYED'
 }
 
 tokens = [
@@ -38,7 +41,7 @@ tokens = [
    'AND', 'OR', 'EQUAL', 'NOTEQUAL', 'GREATER', 'LESS', 'GREATEREQUAL', 'LESSEQUAL',
    'NOT', 
    'LPAREN', 'RPAREN', 'LSQ', 'RSQ', 'LBIG', 'RBIG', 'POINT', 'COMMA',
-   'SEMICOLON',
+   'SEMICOLON', 'COMMENT','CPPCOMMENT',
    'ID',
 ] + list(reserved.values())
 
@@ -85,7 +88,6 @@ t_MULTI   = r'\*'
 t_DIVIDE  = r'/'
 t_INCREMENT = r'\+\+'
 t_DECREMENT = r'--'
-
 t_AND = r'&&'
 t_OR = r'\|\|'
 t_EQUAL = r'=='
@@ -114,26 +116,27 @@ def t_INT_CONST(t):
     t.value = int(t.value)    
     return t
 def t_FLOAT_CONST(t):
-    r'\d+.\d+(E[+-]*\d+)*'
+    r'(\d+)(\.\d+)([eE](\+|-)?(\d+))?'
     t.value = float(t.value)
     return t
 def t_STRING_CONST(t):
-    r'(\'.*\'|\".*\")'
+    r'\"([^\\\n]|(\\.))*?\"'
     temp = (t.value)
     str = ""
     for i in range(1, len(temp) - 1):
         str += temp[i]
-    print str
     t.value = str
-# def t_NULL(t):
-#     r'null'
-#     t.value = int(t.value)
-# def t_FALSE(t):
-#     r'false'
-#     t.value = bool(False)
-# def t_TRUE(t):
-#     r'true'
-#     t.value = bool(True)
+    return t
+def t_COMMENT(t):
+    r'/\*(.|\n)*?\*/'
+    t.lexer.lineno += t.value.count('\n')
+    pass
+
+# Comment (C++-Style)
+def t_CPPCOMMENT(t):
+    r'//.*\n'
+    t.lexer.lineno += 1
+    pass
     
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'
