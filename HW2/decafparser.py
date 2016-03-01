@@ -54,9 +54,9 @@ def p_class_decl(p):
     'class_decl : class_decl2 RBIG'
     if p[1] == 'Correct' :
         p[0] = 'Correct'
-def p_class_decl_error(p):
-    'class_decl : class_decl2 error'
-    print "Syntax error in line %d: '}' needed or modifier needed" %p.lineno(2)
+# def p_class_decl_error(p):
+#     'class_decl : class_decl2 error'
+#     print "Syntax error in line %d: '}' needed or modifier needed" %p.lineno(2)
 
 ## class_body_decl
 def p_class_body_decl(p):
@@ -74,7 +74,8 @@ def p_field_decl(p):
 ## modifier 
 def p_modifier_first(p):
     '''modifier_first : PUBLIC
-                      | PRIVATE'''
+                      | PRIVATE 
+                      | '''
     p[0] = 'Correct'
 # def p_modifier_first_error(p):
 #     '''modifier_first : error'''
@@ -82,6 +83,7 @@ def p_modifier_first(p):
 def p_modifier(p):
     '''modifier : modifier_first
                 | modifier_first STATIC'''
+    
     p[0] = p[1]
     
 ## var_decl
@@ -287,6 +289,8 @@ def p_other_stmt_block(p):
 def p_other_stmt_var_decl(p):
     'other_stmt : var_decl'
     p[0] = p[1]   
+    if(p[1] == 'Error'):
+        p[0] = 'Error'
 ###### SEMICOLON
 def p_stmt_semicolon(p):
     'other_stmt : SEMICOLON'
@@ -319,6 +323,8 @@ def p_primary_super(p):
 def p_primary_paren(p):
     'primary : LPAREN expr RPAREN'
     p[0] = p[2]
+    if(p[2] == 'Error'):
+        p[0] = 'Error'
 #### new
 def p_primary_pnew1(p):
     'pnew1 : NEW ID'
@@ -349,14 +355,20 @@ def p_argument_init(p):
 def p_lhs_field(p):
     'lhs : field_access'
     p[0] = 0
+    if(p[1] == 'Error'):
+        p[0] = 'Error'
 def p_lhs_array(p):
     'lhs : array_access'
     p[0] = 0
+    if(p[1] == 'Error'):
+        p[0] = 'Error'
   
 ## field_access                need
 def p_field_access(p):
     'field_access : primary POINT ID'
     p[0] = 0
+    if(p[1] == 'Error'):
+        p[0] = 'Error'
 def p_field_access_1(p):
     'field_access : ID'
     p[0] = 0
@@ -365,54 +377,86 @@ def p_field_access_1(p):
 def p_array_access(p):
     'array_access : primary LSQ expr RSQ'
     p[0] = 0
+    if(p[len(p) - 2] == 'Error'):
+        p[0] = 'Error'
+    if(p[1] == 'Error'):
+        p[0] = 'Error'
 
 ## method_invocation 
 def p_method_invocation_noarg(p):
     'method_invocation : field_access LPAREN RPAREN'
     p[0] = 0
+    if(p[1] == 'Error'):
+        p[0] = 'Error'
 def p_method_invocation_arg(p):
     'method_invocation : field_access LPAREN arguments RPAREN'
     p[0] = 0
+    if(p[1] == 'Error'):
+        p[0] = 'Error'
     
 ## expression
 #### arith_op
 def p_expr_arith_add(p):
     'expr : expr PLUS expr'
     p[0] = p[1] + p[3]
+    if(p[1] == 'Error' or p[3] == 'Error'):
+        p[0] = 'Error'
 def p_expr_arith_minus(p): 
     'expr : expr MINUS expr'
     p[0] = p[1] - p[3]
+    if(p[1] == 'Error' or p[3] == 'Error'):
+        p[0] = 'Error'
 def p_expr_arith_multi(p):
     'expr : expr MULTI expr'
     p[0] = p[1] * p[3]
+    if(p[1] == 'Error' or p[3] == 'Error'):
+        p[0] = 'Error'
 def p_expr_airth_divede(p):
     'expr : expr DIVIDE expr'
     p[0] = p[1] / p[3]
+    if(p[1] == 'Error' or p[3] == 'Error'):
+        p[0] = 'Error'
 #### bool_op
 def p_expr_bool_and(p):
     'expr : expr AND expr'
     p[0] = bool(p[1] and p[3])
+    if(p[1] == 'Error' or p[3] == 'Error'):
+        p[0] = 'Error'
 def p_expr_bool_or(p):
     'expr : expr OR expr'
     p[0] = bool(p[1] or p[3])
+    if(p[1] == 'Error' or p[3] == 'Error'):
+        p[0] = 'Error'
 def p_expr_bool_equal(p):
     'expr : expr EQUAL expr'
     p[0] = bool(p[1] == p[3])
+    if(p[1] == 'Error' or p[3] == 'Error'):
+        p[0] = 'Error'
 def p_expr_bool_notequal(p):
     'expr : expr NOTEQUAL expr'
     p[0] = bool(p[1] != p[3])
+    if(p[1] == 'Error' or p[3] == 'Error'):
+        p[0] = 'Error'
 def p_expr_bool_less(p):
     'expr : expr LESS expr'
     p[0] = bool(p[1] < p[3])
+    if(p[1] == 'Error' or p[3] == 'Error'):
+        p[0] = 'Error'
 def p_expr_bool_greater(p):
     'expr : expr GREATER expr'
     p[0] = bool(p[1] > p[3])
+    if(p[1] == 'Error' or p[3] == 'Error'):
+        p[0] = 'Error'
 def p_expr_bool_lessequal(p):
     'expr : expr LESSEQUAL expr'
     p[0] = bool(p[1] <= p[3])
+    if(p[1] == 'Error' or p[3] == 'Error'):
+        p[0] = 'Error'
 def p_expr_bool_greaterequal(p):
     'expr : expr GREATEREQUAL expr'
     p[0] = bool(p[1] >= p[3])
+    if(p[1] == 'Error' or p[3] == 'Error'):
+        p[0] = 'Error'
 #### primary
 def p_expr_primary(p):
     'expr : primary'
@@ -429,54 +473,95 @@ def p_expr_newarray(p):
 def p_expr_uminus(p):
     'expr : MINUS expr %prec UMINUS'
     p[0] = -p[2]
+    if(p[2] == 'Error'):
+        p[0] = 'Error'
 def p_expr_uplus(p):
     'expr : PLUS expr %prec UPLUS'
     p[0] = p[2]
+    if(p[2] == 'Error'):
+        p[0] = 'Error'
 def p_expr_not(p):
     'expr : NOT expr %prec NOT'
     p[0] = not bool(p[2])
+    if(p[2] == 'Error'):
+        p[0] = 'Error'
   
  
 ## newarray
 def p_newarray(p):
     '''newarray : newarrayp
                 | newarrayw'''
+    p[0] = 'Correct'
+    if(p[1] == 'Error') :
+        p[0] = 'Error'
 def p_newarrayw(p):
     '''newarrayw : newarrayw LSQ RSQ
                  | newarrayp LSQ RSQ'''
+    p[0] = 'Correct'
+    if(p[1] == 'Error') :
+        p[0] = 'Error'
 def p_newarrayp(p):
     '''newarrayp : NEW type LSQ expr RSQ
                  | newarrayp LSQ expr RSQ'''
+    p[0] = 'Correct'
+    if(p[len(p) - 2] == 'Error') :
+        p[0] = 'Error'
+    if(p[1] == 'Error') :
+        p[0] = 'Error'
+def p_newarray_error_1(p):
+    '''newarrayp : NEW type error expr RSQ'''
+    print("Syntax error in line %d: '[' needed" %p.lineno(1))
+    p[0] = 'Error'
+def p_newarray_error_2(p):
+    '''newarrayp : NEW type LSQ expr error'''
+    print("Syntax error in line %d: ']' needed" %p.lineno(1))
+    p[0] = 'Error'
           
 ## assign
 def p_assign_normal(p):
     'assign : lhs ASSIGN expr'
     p[0] = p[3]
     p[1] = p[3]
+    if(p[1] == 'Error'):
+        p[0] = 'Error'
+    if(p[3] == 'Error'):
+        p[0] = 'Error'
 def p_assign_dadd(p):
     'assign : lhs INCREMENT'
     p[0] = p[1];
     p[1] = p[1] + 1;
+    if(p[1] == 'Error'):
+        p[0] = 'Error'
 def p_assign_bdadd(p):
     'assign : INCREMENT lhs'
     p[0] = p[2] + 1;
     p[2] = p[2] + 1;
+    if(p[2] == 'Error'):
+        p[0] = 'Error'
 def p_assign_dminus(p):
     'assign : lhs DECREMENT'
     p[0] = p[1];
     p[1] = p[1] - 1;
+    if(p[1] == 'Error'):
+        p[0] = 'Error'
 def p_assign_bdminus(p):
     'assign : DECREMENT lhs'
     p[0] = p[2] - 1;
     p[2] = p[2] - 1;    
+    if(p[2] == 'Error'):
+        p[0] = 'Error'
     
 ## stmt_expr
 def p_stmt_expr_assign(p):
     'stmt_expr : assign'
-    p[0] = 'Correct'
+    p[0] = p[1]
+    if(p[1] != 'Error' and p[1] != None) :
+        p[0] = 'Correct'
 def p_stmt_expr_method_invocation(p):
     'stmt_expr : method_invocation'
-    p[0] = 'Correct'
+    p[0] = p[1]
+    if(p[1] != 'Error' and p[1] != None) :
+        p[0] = 'Correct'
 def p_stmt_expr_error(p):
     'stmt_expr : error'
     print("Syntax error in line %d: statement expression syntax error!" %p.lineno(1))
