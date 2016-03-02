@@ -25,16 +25,14 @@ inputstring = "MYPROGRAMSTARTPOINT "
 lexer1 = lex.lex(module=decaflexer)
 if testmode == "debug":
     filename = "input.txt"
-    f = open(filename)
-    rin = f.readlines()
-    for i in rin:
-        inputstring += i
-else :
-    filename = sys.stdin
-    for i in sys.stdin:
-        inputstring += i
-        
 
+else :
+    filename = sys.argv[1]
+        
+f = open(filename)
+rin = f.readlines()
+for i in rin:
+    inputstring += i
 #     linesum.append(len(rin[i]))
 #     if i != 0 :
 #         linesum[i] += linesum[i - 1]
