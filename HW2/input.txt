@@ -14,7 +14,7 @@ class IntList{
 
     public IntList insert(int v) {
         IntList new_element;
-        new_element = create_list(v)
+        new_element = create_list(v);
         new_element.next = this;
 
     return new_element;
@@ -62,15 +62,15 @@ class data2Process{
             ++data;
             --data;
             info_required = data.toString() + data;
-            data = -data + 7;
+            data = 37;
             data = data - + 2;
-            data = 434212 * data
+            data = 434212 * data;
             set  = -data / 3;
             // a[10] = new int [];
             a[9] = data;
             a[10] = new int [new float [7]][][];
             boolValue = True || a[9] == a[10] && a[1] <= a[4] != data < 9;
-           	boolValue = True  a[9] == 2 && 3 != data < 9;
+           	boolValue = True && a[9] == 2 && 3 != data < 9;
         }
         out.print ("This is the \n array to be \t printed");
         out.print (a[10]);
