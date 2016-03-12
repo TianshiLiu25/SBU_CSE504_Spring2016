@@ -2,8 +2,8 @@
 import sys
 import string
 
-#mode = "test"   # test mode input from file
-mode = "submit"   # submit mode keyboard input
+mode = "test"   # test mode input from file
+#mode = "submit"   # submit mode keyboard input
 
 commands = ""
 stack = []
@@ -14,7 +14,7 @@ def labelCheck(label,colon = False):
     #label the string to check; colon if the label end with colon
     if colon == True and label[len(label)-1] != ':':
         return False
-    else:
+    elif colon == True:
         label = label[:len(label)-1]
     if label[0] in string.lowercase:
         for digit in label[1:]:
@@ -41,7 +41,7 @@ def inputProcess():
 
     #load commands
     if mode == "test":
-        f = open("input2.txt")
+        f = open("input1.txt")
         tempCommands = f.readlines()
         f.close()
     else:
