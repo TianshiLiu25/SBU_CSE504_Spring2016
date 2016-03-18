@@ -156,7 +156,7 @@ def p_param_list_single(p):
     pass
 
 def p_param(p):
-    'param : type ID'
+    'param : type var'
     pass
 
 # Statements
@@ -329,7 +329,7 @@ def p_assign_pre_dec(p):
     pass
 
 def p_new_array(p):
-    'new_array : NEW ID dim_expr_plus dim_star'
+    'new_array : NEW type dim_expr_plus dim_star'
     pass
 
 def p_dim_expr_plus(p):
