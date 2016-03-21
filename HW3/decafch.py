@@ -7,6 +7,7 @@ import sys
 import getopt
 
 import decafparser
+import act
 
 class Usage(Exception):
     def __init__(self, msg):
