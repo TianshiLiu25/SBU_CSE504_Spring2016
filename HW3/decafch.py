@@ -7,7 +7,7 @@ import sys
 import getopt
 
 import decafparser
-import act
+import ast
 
 class Usage(Exception):
     def __init__(self, msg):
@@ -16,7 +16,7 @@ class Usage(Exception):
 def main(argv=None):
     if argv is None:
         argv = sys.argv
-        
+
     # parse command line options
     try:
         try:
@@ -40,9 +40,8 @@ def main(argv=None):
         if decafparser.from_file(infile):
             print "No syntax errors found.\n"
             outputStream = ''
-            for item in act.classList:
-                outputStream += item.output(outputStream)
-            outputStream += 'OK'
+            for key in decafparser.classDict:
+                outputStream += decafparser.classDict[key].output()
             print outputStream
         else:
             print "Failure: there were errors."
