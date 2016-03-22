@@ -35,8 +35,14 @@ def main(argv=None):
         else:
             filename=fullfilename
         infile = filename + ".decaf"
+        infile = "input" + ".decaf"
         if decafparser.from_file(infile):
-            print "No syntax errors found."
+            print "No syntax errors found.\n"
+            outputStream = ''
+            for item in act.classList:
+                outputStream += item.output(outputStream)
+            outputStream += 'OK'
+            print outputStream
         else:
             print "Failure: there were errors."
     except Usage, err:
