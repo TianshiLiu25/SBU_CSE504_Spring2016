@@ -57,7 +57,6 @@ class Class:
         if self.fields:
             for item in self.fields:
                 s += self.fields[item].output()
-            print "________________\n\n"
         s += "Constructors: \n"
         if self.constructors:
             for item in self.constructors:
@@ -132,15 +131,15 @@ class Method(object):
         s += "Method Parameters: \n"
         if self.parameters:
             for item in self.parameters:
-                s += item.output
+                s += item.output()
         s += "Variable Table: \n"
         if self.varibleTable:
             for item in self.varibleTable:
-                s += self.varibleTable[item].output
+                s += self.varibleTable[item].output()
         s += "Method Body: \n"
         if self.methodBody:
             for item in self.methodBody:
-                s += self.methodBody[item].output
+                s += self.methodBody[item].output()
         return s
 
 
@@ -172,13 +171,13 @@ class Field(object):
 
 class Variable :
     name = ''
-    id = ''                 # unique in constructor or method
+    id = -1                 # unique in constructor or method
     kind = ''              # formal / local
     type = ''
     baseType = ''
     def __init__(self, name):
         self.name = name
-        self.id = ''                 # unique in constructor or method
+        self.id = -1                 # unique in constructor or method
         self.kind = ''              # formal / local
         self.type = ''
         self.baseType = ''
