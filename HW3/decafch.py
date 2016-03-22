@@ -27,9 +27,10 @@ def main(argv=None):
             if o in ("-h", "--help"):
                 print __doc__
                 return 0
-        if (len(args) != 1):
-            raise Usage("A single file name argument is required")
-        fullfilename = args[0]
+        # if (len(args) != 1):
+            # raise Usage("A single file name argument is required")
+        # fullfilename = args[0]
+        fullfilename = 'input'
         if (fullfilename.endswith('.decaf')):
             (filename,s,e) = fullfilename.rpartition('.')
         else:

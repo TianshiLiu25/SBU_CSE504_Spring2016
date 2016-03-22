@@ -2,7 +2,7 @@ import ply.yacc as yacc
 import decaflexer
 from act import *
 
-# from decaflexer import tokens
+from decaflexer import tokens
 # from decaflexer import errorflag
 from decaflexer import lex
 
@@ -34,8 +34,8 @@ def p_pgm(p):
     'pgm : class_decl_list'
     global  classList
     classList = {'':''}
-    for dic in p[1]:
-        classList[dic.name] = dic
+    # for dic in p[1]:
+    #     classList[dic.name] = dic
 
 def p_class_decl_list_nonempty(p):
     'class_decl_list : class_decl class_decl_list'
@@ -252,6 +252,7 @@ def p_literal_string_const(p):
     'literal : STRING_CONST'
     p[0] = Constant_expr(p[1])
 def p_literal_null(p):
+    'literal : '
     p[0] = Constant_expr(p[1])
 def p_literal_true(p):
     'literal : TRUE'
