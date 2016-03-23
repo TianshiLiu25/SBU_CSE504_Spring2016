@@ -1,6 +1,20 @@
 class A {
    int x;
-   A () {
+   A (int p, double q) {
+     int a, b, i; 
+     for(i=0;;) {
+     	double c, d;
+     }
+     if(i==0) {
+     	b = 1;
+     } else {
+     	a = 1;
+     }
+     	
+     a = new aa(3, i+1);
+   	 a = new int[25][12][][];
+   	 i = -2;
+   	 i = a[0];
      this.x = 0;
    }
    int f() {
@@ -8,8 +22,7 @@ class A {
    }
    public int g() {
       int i;
-      i = this.f();
-      i++;
+      i = this.f(3,2);
       return i;
    }
 }
@@ -17,7 +30,7 @@ class B extends A {
    int y;
    public A s;
    B () {
-     this.y = "change";
+     this.y = 2;
      this.s = new A();
    }
    public int f(int k) {

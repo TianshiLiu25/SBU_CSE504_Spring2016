@@ -3,6 +3,10 @@ A compiler for Decaf programs
 Usage: python decafc.py <filename>
 where <filename> is the name of the file containing the Decaf program.
 """
+
+
+"""
+"""
 import sys
 import getopt
 
