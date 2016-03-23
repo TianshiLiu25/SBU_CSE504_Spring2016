@@ -33,9 +33,12 @@ def init():
 # Top-level
 def p_pgm(p):
     'pgm : class_decl_list'
-    global classDict
+    global classDict,noError
     if p[1]:
         for dic in p[1]:
+            if dic.name == 'In' or dic.name == 'Out':
+                print "Error: duplicate class %s" %dic.name
+                noError = False
             classDict[dic.name] = dic
     else:
         print "Error: no element in ClassList\n"
@@ -436,7 +439,7 @@ def from_file(filename):
         with open(filename, "rU") as f:
             init()
             parser.parse(f.read(), lexer=lex.lex(module=decaflexer), debug=None)
-        return not decaflexer.errorflag
+        return (not decaflexer.errorflag) and noError
     except IOError as e:
         print "I/O error: %s: %s" % (filename, e.strerror)
 

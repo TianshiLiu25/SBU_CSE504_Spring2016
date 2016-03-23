@@ -1,8 +1,10 @@
-class A {
+class Inn {
    int x;
    A (int p, double q) {
-     int a, b, i; 
+     int a, b, i;
      for(i=0;;) {
+        int a[][][];
+        a[5] = 6;
      	double c, d;
      }
      if(i==0) {

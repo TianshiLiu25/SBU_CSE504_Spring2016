@@ -98,7 +98,7 @@ class Constructor(Class):
     contructorBody = []     # statement
 
     def __init__(self, mod, name, paramList, block ):
-        global  idConstructorNum
+        global  idConstructorNum,noError
         self.id = idConstructorNum
         idConstructorNum += 1    # each Constructor has identical ID
         self.visibility = mod[0]          # public / private
@@ -108,13 +108,14 @@ class Constructor(Class):
         self.variableList = paramList
         for t in paramList : 
             if self.variableTable.has_key(t.name) :
-                noError = 0
+                noError = False
                 print 'Error: Duplicate Variable of %s' % t.name
             else :
                 self.variableTable[t.name] = t.id
         self.contructorBody = block
 
     def output(self):
+        global noError
         s = "Constructor: %d, %s\n"% (self.id, self.visibility)
         
         if(self.parameters > 0) :
@@ -125,7 +126,7 @@ class Constructor(Class):
         if self.contructorBody.varibleList:
             for item in self.contructorBody.varibleList:
                 if self.variableTable.has_key(item.name) :
-                    noError = 0
+                    noError = False
                     print 'Error: Duplicate Variable of %s' % item.name
                 else :
                     self.variableTable[item.name] = item.id
@@ -166,7 +167,7 @@ class Method(Class):
         self.variableList = paramList
         for t in paramList : 
             if self.variableTable.has_key(t.name) :
-                noError = 0
+                noError = False
                 print 'Error: Duplicate Variable of %s' % t.name
             else :
                 self.variableTable[t.name] = t.id
@@ -175,7 +176,8 @@ class Method(Class):
         self.returnValue = type
 
     def output(self):
-        s = "    METHOD: %d, %s, %s, %s, %s, %s\n"% (self.id, self.name, self.containingClass, self.visibility, self.applicability, self.returnValue)
+        global noError
+        s = "METHOD: %d, %s, %s, %s, %s, %s\n"% (self.id, self.name, self.containingClass, self.visibility, self.applicability, self.returnValue)
         if(self.parameters > 0) :
             s += "Method Parameters: %d\n" %self.parameters
         else :
@@ -184,7 +186,7 @@ class Method(Class):
         if self.methodBody.varibleList:
             for item in self.methodBody.varibleList:
                 if self.variableTable.has_key(item.name) :
-                    noError = 0
+                    noError = False
                     print 'Error: Duplicate Variable of %s' % item.name
                 else :
                     self.variableTable[item.name] = item.id
@@ -236,7 +238,9 @@ class Variable :
         self.name = name
         self.id = idVaribleNum      # unique in constructor or method
         idVaribleNum += 1
-        tempVarTable[self.name] = self.id
+        if(not tempVarTable.has_key(self.name)) :
+            tempVarTable[self.name] = []
+        tempVarTable[self.name].append(self.id)
         self.kind = 'local'              # formal / local
         self.type = ''              
         self.baseType = ''
@@ -361,7 +365,8 @@ class BlockStmt(Statement):
                 print ("Error: Duplicated variable of %s!") % tempVarList[t].name
                 noError = False
             else :
-                self.varibleTable[tempVarList[t].name] = tempVarList[t].id 
+                self.varibleTable[tempVarList[t].name] = tempVarList[t].id
+            tempVarTable[tempVarList[t].name].pop()
             tempVarList.pop()
             t -= 1
 
@@ -448,7 +453,9 @@ class VarExpr (Expression):
         if self.id:
             s = "Declare Variable: # "
             for item in self.id:
-                s += " %s," %item.name
+                if(item != self.id[0]) :
+                    s += ','
+                s += "%s" %item.name
         return s
 
 
@@ -546,7 +553,7 @@ class VarAccessExpr (Expression):
         self.name = name         # string
         self.id = -1
         if tempVarTable.has_key(self.name):
-            self.id = tempVarTable[self.name]
+            self.id = tempVarTable[self.name][len(tempVarTable[self.name])-1]
 
     def output(self):
         s = "Variable(%s)" %self.id
