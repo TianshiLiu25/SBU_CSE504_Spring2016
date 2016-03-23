@@ -127,7 +127,7 @@ class Method(object):
         self.returnValue = type
 
     def output(self):
-        s = "    %d, %s, %s, %s, %s, %s\n"% (self.id, self.name, self.containingClass, self.visibility, self.applicability, self.returnValue)
+        s = "    METHOD: %d, %s, %s, %s, %s, %s\n"% (self.id, self.name, self.containingClass, self.visibility, self.applicability, self.returnValue)
         s += "    Method Parameters: \n"
         if self.parameters:
             for item in self.parameters:
@@ -139,7 +139,7 @@ class Method(object):
                 s += self.varibleTable[item].output()
         s += "    Method Body: \n"
 
-        self.methodBody.output()
+        s += self.methodBody.output()
         return s
 
 
@@ -165,7 +165,7 @@ class Field(object):
         self.applicability = app
 
     def output(self):
-        s = "    %d, %s, %s, %s, %s, %s\n" %(self.id, self.name, self.containingClass, self.visibility, self.applicability, self.type)
+        s = "    FIELD: %d, %s, %s, %s, %s, %s\n" %(self.id, self.name, self.containingClass, self.visibility, self.applicability, self.type)
         return s
 
 
@@ -262,7 +262,7 @@ class ReturnStmt(Statement):
     def __init__(self,returnValue):
         self.returnValue = returnValue    # expression
     def output(self):
-        s = "Return %s"% self.returnValue
+        s = "Return %s"% self.returnValue.output()
         return s
 
 
@@ -290,11 +290,11 @@ class BlockStmt(Statement):
 
     def output(self):
         s = "Block(["
-        print self.stmt
+#        print self.stmt
         if self.stmt:
             for item in self.stmt:
                 s += "\n    "
-                print "****%s" %item
+#               print "****%s" %item
                 s += item.output()
         s += "\n )]\n"
         return s
@@ -363,10 +363,10 @@ class VarExpr (Expression):
 
     def output(self):
         s =''
-        if id:
+        if self.id:
             s = "Declare Variable: # "
             for item in self.id:
-                s += " %s," %item
+                s += " %s," %item.name
         return s
 
 
@@ -380,7 +380,7 @@ class UnaryExpr (Expression):
         self.operator = operator
 
     def output(self):
-        s = "Unary: %c%d" % (self.operand, self.operator)
+        s = "Unary: %c%s" % (self.operand, self.operator.output())
         return s
 
 
@@ -396,7 +396,7 @@ class BinaryExpr (Expression):
         self.operator = operator            # add, sub, mul, div, and, or, eq, neq, lt, leq, gt, and geq
 
     def output(self):
-        s = "Binary: %d %s %d" % (self.operand1, self.operator, self.operand2)
+        s = "Binary: %s %s %s" % (self.operand1.output(), self.operator, self.operand2.output())
         return s
 
 
@@ -409,8 +409,9 @@ class AssignExpr (Expression):
         self.right = right                # expression
 
     def output(self):
-        print self.left.output()
-        print self.right.output()
+#        print self.left.output()
+        print 1
+#        print self.right.output()
         s = "Assign:( %s, %s)" %( self.left.output() , self.right.output())
         return s
 
@@ -437,23 +438,34 @@ class AutoExpr (Expression):       # x++
 class FieldAccessExpr (Expression):
 
     def __init__(self,name):
-        self.base = 'This'         # expression
+        self.bas = 'This'         # expression
         self.name = name         # string
 
     def output(self):
-        s = "Field-Access: (%s, %s)"% (self.base, self.name)
+        s = "Field-Access: (%s, %s)"% (self.bas, self.name)
+        return  s
+    
+class VarAccessExpr (Expression):
+
+    def __init__(self,name):
+        self.name = name         # string
+        self.id = 0
+
+    def output(self):
+        s = "Variable(%s)" %self.id
         return  s
 
 
 class MethodCallExpr (Expression):
-    def __init__(self, base, name, argu2Call ):
-        self.base  = base        #expr
+    def __init__(self, bas, name, argu2Call ):
+        self.bas  = bas        #expr
         self.name  = name        #string
         self.argu2Call  = argu2Call  #seq of expr  / emp
 
     def output(self):
-        s = "%s.%s (" %(self.base, self.name)
-        s += self.argu2Call.output
+        s = "%s.%s (" %(self.bas.output(), self.name)
+        if(self.argu2Call != []):
+            s += self.argu2Call.output()
         s += " )"
         return s
 
@@ -470,8 +482,9 @@ class NewObjectExpr(Expression):
 
 
 class ThisExpr (Expression):
+    name = ''
     def __init__(self):
-        pass
+        self.name = 'This'
 
     def output(self):
         s = "This"
@@ -479,8 +492,13 @@ class ThisExpr (Expression):
 
 
 class SuperExpr(Expression):
+    name = ''
     def __init__(self):
-        pass
+        self.name = 'Super'
+
+    def output(self):
+        s = "Super"
+        return s
 
 
 class ClassReference(Expression):
@@ -491,11 +509,11 @@ class ClassReference(Expression):
 
 
 class ArrayAccessExpr(Expression):
-    base = ''
+    bas = ''
     index = ''
 
-    def __init__(self, base, index):
-        self.base = base           # expression
+    def __init__(self, bas, index):
+        self.bas = bas           # expression
         self.index = index        # expression
 
 

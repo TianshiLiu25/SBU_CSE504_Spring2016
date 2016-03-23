@@ -8,6 +8,7 @@ from decaflexer import lex
 
 import sys
 import logging
+
 precedence = (
     ('right', 'ASSIGN'),
     ('left', 'OR'),
@@ -290,7 +291,7 @@ def p_primary_lhs(p):
     p[0] = p[1]
 def p_primary_method_invocation(p):
     'primary : method_invocation'
-    p[0] = [1]
+    p[0] = p[1]
 
 def p_args_opt_nonempty(p):
     'args_opt : arg_plus'
@@ -319,8 +320,7 @@ def p_field_access_dot(p):
     p[0] = temp
 def p_field_access_id(p):
     'field_access : ID'
-    temp = FieldAccessExpr(p[1])
-    temp.base = 'This'
+    temp = VarAccessExpr(p[1])
     p[0] = temp
 
 def p_array_access(p):
@@ -329,12 +329,13 @@ def p_array_access(p):
 
 def p_method_invocation(p):
     'method_invocation : field_access LPAREN args_opt RPAREN'
-    p[0] = MethodCallExpr(p[1].base,p[1].name,p[2])
+    p[0] = MethodCallExpr(p[1].base,p[1].name,p[3])
 
 def p_expr_basic(p):
     '''expr : primary
             | assign
             | new_array'''
+    print p
     p[0] = p[1]
 def p_expr_binop(p):
     '''expr : expr PLUS expr
@@ -437,9 +438,13 @@ def from_file(filename):
 
 
 if __name__ == "__main__" :
-    f = open(sys.argv[1], "r")
+#    f = open(sys.argv[1], "r")
+    f = open("input.decaf", "r")
     logging.basicConfig(
-            level=logging.CRITICAL,
+        level = logging.DEBUG,
+        filename = "parselog.txt",
+        filemode = "w",
+        format = "%(filename)10s:%(lineno)4d:%(message)s"
     )
     log = logging.getLogger()
     res = parser.parse(f.read(), lexer=lex.lex(module=decaflexer), debug=log)
