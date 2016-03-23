@@ -52,7 +52,7 @@ class Class:
     def output(self):
         s = "Class Name: %s\n" % self.name
         s += "Super Class Name: %s\n" % self.superClassName
-        s += "Fileds: \n"
+        s += "Fields: \n"
 
         if self.fields:
             for item in self.fields:
@@ -74,8 +74,8 @@ class Constructor(object):
     id = -1
     visibility = ''          # public / private
     parameters = []          # seq of variable
-    variableTable = ()       # table of variable
-    contructorBody = ()      # statement
+    variableTable = []       # table of variable
+    contructorBody = []     # statement
 
     def __init__(self, mod, name, paramList, block ):
         global  idConstructorNum
@@ -83,23 +83,21 @@ class Constructor(object):
         idConstructorNum += 1    # each Constructor has identical ID
         self.visibility = mod[0]          # public / private
         self.parameters = paramList    # seq of variable
-        self.variableTable = ()  # table of variable
-        self.contructorBody = () # statement
+        self.contructorBody = block
 
     def output(self):
-        s = "Constructor: %d, %s\n"% (self.id, self.visibility)
-        s += "Constructor Parameters: \n"
+        s = "    Constructor: %d, %s\n"% (self.id, self.visibility)
+        s += "    Constructor Parameters: \n"
         if self.parameters:
             for item in self.parameters:
                 s += self.parameters[item].output()
-        s += "Variable Table: \n"
+        s += "    Variable Table: \n"
         if self.variableTable:
             for item in self.variableTable:
                 s += self.variableTable[item].output()
-        s += "Constructor Body: \n"
+        s += "    Constructor Body: \n"
         if self.contructorBody:
-            for item in self.contructorBody:
-                s += self.contructorBody[item].output()
+            s +=  self.contructorBody.output()
         return s
 
 
@@ -114,7 +112,7 @@ class Method(object):
     parameters = []         # seq of variable
     returnValue = ''        # type / emp (void)
     varibleTable = {}
-    methodBody = {}        # statement
+           # statement
 
     def __init__(self, mod, type, name, paramList, block):
         self.name = name
@@ -125,21 +123,23 @@ class Method(object):
         self.visibility = mod[0]             # public / private
         self.applicability = mod[1]         # static or non-static
         self.parameters = paramList         # seq of variable
+        self.methodBody = block
+        self.returnValue = type
 
     def output(self):
-        s = "%d, %s, %s, %s, %s, %s\n"% (self.id, self.name, self.containingClass, self.visibility, self.applicability, self.returnValue)
-        s += "Method Parameters: \n"
+        s = "    %d, %s, %s, %s, %s, %s\n"% (self.id, self.name, self.containingClass, self.visibility, self.applicability, self.returnValue)
+        s += "    Method Parameters: \n"
         if self.parameters:
             for item in self.parameters:
+                s += "    "
                 s += item.output()
-        s += "Variable Table: \n"
+        s += "    Variable Table: \n"
         if self.varibleTable:
             for item in self.varibleTable:
                 s += self.varibleTable[item].output()
-        s += "Method Body: \n"
-        if self.methodBody:
-            for item in self.methodBody:
-                s += self.methodBody[item].output()
+        s += "    Method Body: \n"
+
+        self.methodBody.output()
         return s
 
 
@@ -165,7 +165,7 @@ class Field(object):
         self.applicability = app
 
     def output(self):
-        s = "%d, %s, %s, %s, %s\n" %(self.id, self.name, self.containingClass, self.visibility, self.applicability)
+        s = "    %d, %s, %s, %s, %s, %s\n" %(self.id, self.name, self.containingClass, self.visibility, self.applicability, self.type)
         return s
 
 
@@ -189,10 +189,8 @@ class Variable :
 
 class Type:                     # array or elementary
     type = ''
-
     def __init__(self, type):         # one of int, float, boolean, or string or class name
         self.type = type
-
 
 # Statement Group
 
@@ -291,9 +289,13 @@ class BlockStmt(Statement):
         self.stmt = stmt         # statement seq
 
     def output(self):
-        s = "Block([\n"
-        for item in self.stmt:
-            s += item.output
+        s = "Block(["
+        print self.stmt
+        if self.stmt:
+            for item in self.stmt:
+                s += "\n    "
+                print "****%s" %item
+                s += item.output()
         s += "\n )]\n"
         return s
 
@@ -343,27 +345,28 @@ class ConstantExpr (Expression):
     info = []
     type = ''
 
-    def __init__(self, string):
-        self.info = string                  # Integer / Float / String / Null
-        if string in ['true', 'false', 'null']:
-            self.type = 'bool'
-        else:
-            self.type = string
+    def __init__(self, info, type):
+        self.info = info                  # Integer / Float / String / Null
+        self.type = type
 
     def output(self):
-        s = "Type: %s, Info: %s"% (self.type, self.info)
+        s = "%s(%s)"% (self.type, self.info)
         return s
 
 
 class VarExpr (Expression):
 
-    id = -1
+    id = []
 
-    def __init__(self):
-        self.id
+    def __init__(self, id):
+        self.id = id
 
     def output(self):
-        s = "Variable ID: %d" % self.id
+        s =''
+        if id:
+            s = "Declare Variable: # "
+            for item in self.id:
+                s += " %s," %item
         return s
 
 
@@ -406,7 +409,9 @@ class AssignExpr (Expression):
         self.right = right                # expression
 
     def output(self):
-        s = self.left.output + self.right.output
+        print self.left.output()
+        print self.right.output()
+        s = "Assign:( %s, %s)" %( self.left.output() , self.right.output())
         return s
 
 
@@ -432,11 +437,11 @@ class AutoExpr (Expression):       # x++
 class FieldAccessExpr (Expression):
 
     def __init__(self,name):
-        self.base = ''         # expression
+        self.base = 'This'         # expression
         self.name = name         # string
 
     def output(self):
-        s = "%s.%s"% (self.base, self.name)
+        s = "Field-Access: (%s, %s)"% (self.base, self.name)
         return  s
 
 
@@ -469,7 +474,7 @@ class ThisExpr (Expression):
         pass
 
     def output(self):
-        s = "this"
+        s = "This"
         return s
 
 

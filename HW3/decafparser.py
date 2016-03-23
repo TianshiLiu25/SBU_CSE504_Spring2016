@@ -101,9 +101,11 @@ def p_method_decl_void(p):
     'method_decl : mod VOID ID LPAREN param_list_opt RPAREN block'
     p[0] = [Method(p[1],p[2],p[3],p[5],p[7])]
 
+
 def p_method_decl_nonvoid(p):
     'method_decl : mod type ID LPAREN param_list_opt RPAREN block'
     p[0] = [Method(p[1],p[2],p[3],p[5],p[7])]
+    print "******%s*****" %((p[7]))
 
 def p_constructor_decl(p):
     'constructor_decl : mod ID LPAREN param_list_opt RPAREN block'
@@ -123,14 +125,14 @@ def p_visibility_mod_priv(p):
     p[0] = 'private'
 def p_visibility_mod_empty(p):
     'visibility_mod : '
-    p[0] = ''
+    p[0] = 'private'
 
 def p_storage_mod_static(p):
     'storage_mod : STATIC'
-    p[0] = p[1]
+    p[0] = "static"
 def p_storage_mod_empty(p):
     'storage_mod : '
-    p[0] = "empty"
+    p[0] = "instance"
 
 def p_var_decl(p):
     'var_decl : type var_list SEMICOLON'
@@ -140,13 +142,13 @@ def p_var_decl(p):
 
 def p_type_int(p):
     'type :  INT'
-    p[0] = p[1]
+    p[0] = 'Int'
 def p_type_bool(p):
     'type :  BOOLEAN'
-    p[0] = p[1]
+    p[0] = 'Boolean'
 def p_type_float(p):
     'type :  FLOAT'
-    p[0] = p[1]
+    p[0] = "Float"
 def p_type_id(p):
     'type :  ID'
     p[0] = p[1]
@@ -239,7 +241,10 @@ def p_stmt_block(p):
     p[0] = BlockStmt(p[1])
 def p_stmt_var_decl(p):
     'stmt : var_decl'
-    p[0] = p[1]
+    temp = []
+    for item in p[1]:
+        temp.append(item)
+    p[0] = VarExpr(temp)
 def p_stmt_error(p):
     'stmt : error SEMICOLON'
     print("Invalid statement near line {}".format(p.lineno(1)))
@@ -248,22 +253,22 @@ def p_stmt_error(p):
 # Expressions
 def p_literal_int_const(p):
     'literal : INT_CONST'
-    p[0] = ConstantExpr(p[1])
+    p[0] = ConstantExpr(p[1], "Integer_Const")
 def p_literal_float_const(p):
     'literal : FLOAT_CONST'
-    p[0] = ConstantExpr(p[1])
+    p[0] = ConstantExpr(p[1], "Float_Const")
 def p_literal_string_const(p):
     'literal : STRING_CONST'
-    p[0] = ConstantExpr(p[1])
+    p[0] = ConstantExpr(p[1], "String_Const")
 def p_literal_null(p):
     'literal : NULL'
-    p[0] = ConstantExpr(p[1])
+    p[0] = ConstantExpr(p[1], "Null_Const")
 def p_literal_true(p):
     'literal : TRUE'
-    p[0] = ConstantExpr(p[1])
+    p[0] = ConstantExpr(p[1], "Boolean_Const")
 def p_literal_false(p):
     'literal : FALSE'
-    p[0] = ConstantExpr(p[1])
+    p[0] = ConstantExpr(p[1], "Boolean_Const")
 
 def p_primary_literal(p):
     'primary : literal'
@@ -309,12 +314,14 @@ def p_lhs(p):
 
 def p_field_access_dot(p):
     'field_access : primary DOT ID'
-    temp = FieldAccessExpr(p[1])
-    temp.base = p[3]
+    temp = FieldAccessExpr(p[3])
+    temp.base = p[1]
     p[0] = temp
 def p_field_access_id(p):
     'field_access : ID'
-    p[0] = FieldAccessExpr(p[1])
+    temp = FieldAccessExpr(p[1])
+    temp.base = 'This'
+    p[0] = temp
 
 def p_array_access(p):
     'array_access : primary LBRACKET expr RBRACKET'
