@@ -8,6 +8,7 @@ from decaflexer import lex
 
 import sys
 import logging
+
 precedence = (
     ('right', 'ASSIGN'),
     ('left', 'OR'),
@@ -32,12 +33,16 @@ def init():
 # Top-level
 def p_pgm(p):
     'pgm : class_decl_list'
-    global classDict
+    global classDict,noError
     if p[1]:
         for dic in p[1]:
+            if dic.name == 'In' or dic.name == 'Out':
+                print "Error: duplicate class %s" %dic.name
+                noError = False
             classDict[dic.name] = dic
     else:
         print "Error: no element in ClassList\n"
+        noError = False
 
 def p_class_decl_list_nonempty(p):
     'class_decl_list : class_decl class_decl_list'
@@ -66,7 +71,7 @@ def p_extends_id(p):
 
 def p_extends_empty(p):
     ' extends : '
-    p[0] = ''
+    p[0] = None
 
 def p_class_body_decl_list_plus(p):
     'class_body_decl_list : class_body_decl_list class_body_decl'
@@ -105,7 +110,6 @@ def p_method_decl_void(p):
 def p_method_decl_nonvoid(p):
     'method_decl : mod type ID LPAREN param_list_opt RPAREN block'
     p[0] = [Method(p[1],p[2],p[3],p[5],p[7])]
-    print "******%s*****" %((p[7]))
 
 def p_constructor_decl(p):
     'constructor_decl : mod ID LPAREN param_list_opt RPAREN block'
@@ -155,20 +159,21 @@ def p_type_id(p):
 
 def p_var_list_plus(p):
     'var_list : var_list COMMA var'
-    p[0] = p[1].append( p[3])
+    p[0] = p[1];
+    p[0].append(p[3])
 
 def p_var_list_single(p):
     'var_list : var'
-    p[0] = p[1]
+    p[0] = [p[1]]
 
 def p_var_id(p):
     'var : ID'
-    p[0] = [Variable(p[1])]
+    p[0] = Variable(p[1], p.lexpos(1))
 def p_var_array(p):
     'var : var LBRACKET RBRACKET'
-    p[1].type = 'array'
-    p[1].baseType += 'array of '
     p[0] = p[1]
+    p[0].type = 'array'
+    p[0].baseType += 'array of '
 
 def p_param_list_opt(p):
     'param_list_opt : param_list'
@@ -179,23 +184,23 @@ def p_param_list_empty(p):
 
 def p_param_list(p):
     'param_list : param_list COMMA param'
-    p[3].append(p[1])
-    p[0] = p[3]
+    p[0] = p[1];
+    p[0].append(p[3])
 def p_param_list_single(p):
     'param_list : param'
-    p[0] = p[1]
+    p[0] = [p[1]]
 
 def p_param(p):
     'param : type var'
-    temp =[Variable(p[1])]
-    temp[0].type = p[1]
+    temp =Variable(p[2].name, p.lexpos(1))
+    temp.type = p[1]
     p[0] = temp
 
 # Statements
 
 def p_block(p):
     'block : LBRACE stmt_list RBRACE'
-    p[0] = BlockStmt(p[2])
+    p[0] = BlockStmt(p[2], (p.lexpos(1), p.lexpos(3)))
 def p_block_error(p):
     'block : LBRACE stmt_list error RBRACE'
     # error within a block; skip to enclosing block
@@ -238,7 +243,7 @@ def p_stmt_continue(p):
     p[0] = ContinueStmt()
 def p_stmt_block(p):
     'stmt : block'
-    p[0] = BlockStmt(p[1])
+    p[0] = p[1]
 def p_stmt_var_decl(p):
     'stmt : var_decl'
     temp = []
@@ -290,19 +295,19 @@ def p_primary_lhs(p):
     p[0] = p[1]
 def p_primary_method_invocation(p):
     'primary : method_invocation'
-    p[0] = [1]
+    p[0] = p[1]
 
 def p_args_opt_nonempty(p):
     'args_opt : arg_plus'
-    p[0] = p[1]
+    p[0] = args_opt(p[1])
 def p_args_opt_empty(p):
     'args_opt : '
-    p[0] = []
+    p[0] = args_opt([])
 
 def p_args_plus(p):
     'arg_plus : arg_plus COMMA expr'
-    p[1].append(p[2])
     p[0] = p[1]
+    p[0].append(p[3])
 def p_args_single(p):
     'arg_plus : expr'
     p[0] = [p[1]]
@@ -319,8 +324,7 @@ def p_field_access_dot(p):
     p[0] = temp
 def p_field_access_id(p):
     'field_access : ID'
-    temp = FieldAccessExpr(p[1])
-    temp.base = 'This'
+    temp = VarAccessExpr(p[1])
     p[0] = temp
 
 def p_array_access(p):
@@ -329,7 +333,7 @@ def p_array_access(p):
 
 def p_method_invocation(p):
     'method_invocation : field_access LPAREN args_opt RPAREN'
-    p[0] = MethodCallExpr(p[1].base,p[1].name,p[2])
+    p[0] = MethodCallExpr(p[1].base,p[1].name,p[3])
 
 def p_expr_basic(p):
     '''expr : primary
@@ -355,7 +359,10 @@ def p_expr_unop(p):
     '''expr : PLUS expr %prec UMINUS
             | MINUS expr %prec UMINUS
             | NOT expr'''
-    p[0] = UnaryExpr(p[2],p[1])
+    if(p[1] == '+'):
+        p[0]= p[2];
+    else :
+        p[0] = UnaryExpr(p[2],p[1])
 
 def p_assign_equals(p):
     'assign : lhs ASSIGN expr'
@@ -365,33 +372,33 @@ def p_assign_post_inc(p):
     p[0] = AutoExpr (p[0],"inc","post")
 def p_assign_pre_inc(p):
     'assign : INC lhs'
-    p[0] = AutoExpr (p[0],"inc","pre")
+    p[0] = AutoExpr (p[1],"inc","pre")
 def p_assign_post_dec(p):
     'assign : lhs DEC'
     p[0] = AutoExpr (p[0],"dec","post")
 def p_assign_pre_dec(p):
     'assign : DEC lhs'
-    p[0] = AutoExpr (p[0],"dec","pre")
+    p[0] = AutoExpr (p[1],"dec","pre")
 
 def p_new_array(p):
     'new_array : NEW type dim_expr_plus dim_star'
-    temp = p[3] + p[4] + type
-    p[0] = NewArrayExpr("array",p[3])
+    temp = p[3] + p[4] + p[2]
+    p[0] = NewArrayExpr("array",temp)
 
 def p_dim_expr_plus(p):
     'dim_expr_plus : dim_expr_plus dim_expr'
-    p[0] = "array of" + p[2]
+    p[0] = p[1] + p[2]
 def p_dim_expr_single(p):
     'dim_expr_plus : dim_expr'
     p[0] = p[1]
 
 def p_dim_expr(p):
     'dim_expr : LBRACKET expr RBRACKET'
-    p[0] = "array (dimension " + p[1] + " ) of"
+    p[0] = "array (dimension " + p[2].output() + " ) of "
 
 def p_dim_star(p):
     'dim_star : LBRACKET RBRACKET dim_star'
-    p[0] = "array of" + p[1]
+    p[0] = "array of " + p[3]
     pass
 def p_dim_star_empty(p):
     'dim_star : '
@@ -404,17 +411,18 @@ def p_stmt_expr(p):
 
 def p_stmt_expr_opt(p):
     'stmt_expr_opt : stmt_expr'
-    p[0] = p[1]
+    p[0] = stmtexpr_opt([p[1]])
+    
 def p_stmt_expr_empty(p):
     'stmt_expr_opt : '
-    p[0] = []
+    p[0] = stmtexpr_opt([])
 
 def p_expr_opt(p):
     'expr_opt : expr'
-    p[0] = p[1]
+    p[0] = stmtexpr_opt([p[1]])
 def p_expr_empty(p):
     'expr_opt : '
-    p[0] = []
+    p[0] = stmtexpr_opt([])
 
 
 def p_error(p):
@@ -431,15 +439,19 @@ def from_file(filename):
         with open(filename, "rU") as f:
             init()
             parser.parse(f.read(), lexer=lex.lex(module=decaflexer), debug=None)
-        return not decaflexer.errorflag
+        return (not decaflexer.errorflag) and noError
     except IOError as e:
         print "I/O error: %s: %s" % (filename, e.strerror)
 
 
 if __name__ == "__main__" :
-    f = open(sys.argv[1], "r")
+#    f = open(sys.argv[1], "r")
+    f = open("input.decaf", "r")
     logging.basicConfig(
-            level=logging.CRITICAL,
+        level = logging.DEBUG,
+        filename = "parselog.txt",
+        filemode = "w",
+        format = "%(filename)10s:%(lineno)4d:%(message)s"
     )
     log = logging.getLogger()
     res = parser.parse(f.read(), lexer=lex.lex(module=decaflexer), debug=log)

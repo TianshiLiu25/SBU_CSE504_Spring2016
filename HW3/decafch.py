@@ -3,6 +3,10 @@ A compiler for Decaf programs
 Usage: python decafc.py <filename>
 where <filename> is the name of the file containing the Decaf program.
 """
+
+
+"""
+"""
 import sys
 import getopt
 
@@ -27,10 +31,10 @@ def main(argv=None):
             if o in ("-h", "--help"):
                 print __doc__
                 return 0
-        # if (len(args) != 1):
-            # raise Usage("A single file name argument is required")
-        # fullfilename = args[0]
-        fullfilename = 'input'
+        if (len(args) != 1):
+            raise Usage("A single file name argument is required")
+        fullfilename = args[0]
+        #fullfilename = 'input'
         if (fullfilename.endswith('.decaf')):
             (filename,s,e) = fullfilename.rpartition('.')
         else:
@@ -42,7 +46,10 @@ def main(argv=None):
             outputStream = ''
             for key in decafparser.classDict:
                 outputStream += decafparser.classDict[key].output()
-            print outputStream
+            if ast.noError :
+                print outputStream
+            else :
+                print "Failure : there were errors."
         else:
             print "Failure: there were errors."
     except Usage, err:
