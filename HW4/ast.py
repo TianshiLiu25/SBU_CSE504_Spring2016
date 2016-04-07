@@ -119,8 +119,9 @@ class Type:
             else:
                 if(not isinstance(basetype, Class)) :
                     print('type Error!!!!!')
-                    while 1:
-                        c = 1;
+                    self.kind = 'basic'
+                    self.typename = 'error'
+                    return
                 self.kind = 'class'
                 self.typename = basetype.name
         else:
@@ -538,6 +539,9 @@ class NewArrayExpr(Expr):
         self.lines = lines
         self.basetype = basetype
         self.args = args
+        self.origtype = basetype
+        for i in range(0, len(args)):
+            self.origtype = self.origtype.basetype
     def __repr__(self):
-        return "New-array({0}, {1})".format(self.basetype, self.args)
+        return "New-array({0}, {1})".format(self.origtype, self.args)
 

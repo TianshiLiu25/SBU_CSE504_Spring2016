@@ -515,7 +515,7 @@ def p_assign_pre_dec(p):
 
 def p_new_array(p):
     'new_array : NEW type dim_expr_plus dim_star'
-    t = ast.Type(p[2], params=p[4])
+    t = ast.Type(p[2], params=p[4]+len(p[3]))
     p[0] = ast.NewArrayExpr(t, p[3], p.lineno(1))
 
 def p_dim_expr_plus(p):
@@ -575,9 +575,10 @@ def from_file(filename):
         with open(filename, "rU") as f:
             init()
             parser.parse(f.read(), lexer=lex.lex(module=decaflexer), debug=None)
-            for i in ast.classtable :
-                if not typecheck.classCheck(classtable[i]) :
-                    decaflexer.errorflag = True
+            if(not decaflexer.errorflag) :
+                for i in ast.classtable :
+                    if not typecheck.classCheck(classtable[i]) :
+                        decaflexer.errorflag = True
             
             
         return not decaflexer.errorflag

@@ -331,7 +331,7 @@ def fieldAccessExprCheck(node):
         node.basetype = ast.Type('error')
         return False
     if(not ast.classtable.has_key(cname.basetype.typename)) :
-        print('Line %d: can''t find base class in field access') %node.lines
+        print('Line %d: can\'t find base class in field access') %node.lines
         node.basetype = ast.Type('error')
         return False          
     c = ast.classtable[cname.basetype.typename]
@@ -525,6 +525,7 @@ def newArrayExprCheck(node):
     for arg in node.args :
         exprCheck(arg)
         if (not isinstance(arg.basetype, ast.Type)) or (arg.basetype.kind != 'basic') or (arg.basetype.typename != 'int') :
+            print('Line %d: Not an integer index in NewArrayExpr') %node.lines
             node.basetype = ast.Type('error')
             return False
         

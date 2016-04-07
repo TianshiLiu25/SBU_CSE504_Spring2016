@@ -20,23 +20,22 @@ def main(argv=None):
         
     # parse command line options
     try:
-#         try:
-#             opts, args = getopt.getopt(argv[1:], "h", ["help"])
-#         except getopt.error, msg:
-#             raise Usage(msg)
-#         for o,a in opts:
-#             if o in ("-h", "--help"):
-#                 print __doc__
-#                 return 0
-#         if (len(args) != 1):
-#             raise Usage("A single file name argument is required")
-#         fullfilename = args[0]
-#         if (fullfilename.endswith('.decaf')):
-#             (filename,s,e) = fullfilename.rpartition('.')
-#         else:
-#             filename=fullfilename
-#         infile = filename + ".decaf"
-        infile = "input.decaf"
+        try:
+            opts, args = getopt.getopt(argv[1:], "h", ["help"])
+        except getopt.error, msg:
+            raise Usage(msg)
+        for o,a in opts:
+            if o in ("-h", "--help"):
+                print __doc__
+                return 0
+        if (len(args) != 1):
+            raise Usage("A single file name argument is required")
+        fullfilename = args[0]
+        if (fullfilename.endswith('.decaf')):
+            (filename,s,e) = fullfilename.rpartition('.')
+        else:
+            filename=fullfilename
+        infile = filename + ".decaf"
         ast.initialize_ast()
         if decafparser.from_file(infile):
             ast.print_ast()            
