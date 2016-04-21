@@ -28,7 +28,7 @@ class C extends B {
 	}
 	B get() {
 		float i, j[][][];
-		j = new float[3][][];
+		j = new float[3][][][];
 		j[0] = new float[2][2];
 		A cc;
 		cc = new C(0, 1.0);

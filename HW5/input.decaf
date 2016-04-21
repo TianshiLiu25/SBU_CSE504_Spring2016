@@ -1,0 +1,14 @@
+class A {
+	public int p, j, a;
+}
+class B extends A {
+	int p, j;
+}
+class C{
+	float p, j;
+	int f() {
+		int a[][][];
+		a = new int[20][20][20];
+		return 0;
+	}
+}

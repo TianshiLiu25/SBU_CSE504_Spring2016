@@ -1,0 +1,38 @@
+.static_data 0
+
+__main__:
+    move_immed_i t2,20
+    halloc t1 t2
+    move t3 t2
+    move_immed_i t6 1
+    move_immed_i t5 0
+    igt t4 t3 t5
+    bz t4 l2_alloc_end
+#begin of alloc an array
+l1_alloc_begin:
+    isub t3 t3 t6
+    move t7 t1
+    iadd t7 t7 t3
+    move_immed_i t8,20
+    halloc t7 t8
+    move t9 t8
+    move_immed_i t12 1
+    move_immed_i t11 0
+    igt t10 t9 t11
+    bz t10 l4_alloc_end
+#begin of alloc an array
+l3_alloc_begin:
+    isub t9 t9 t12
+    move t13 t7
+    iadd t13 t13 t9
+    move_immed_i t14,20
+    halloc t13 t14
+    bz t9 l4_alloc_end
+    jmp l3_alloc_begin
+#end of alloc an array
+l4_alloc_end:
+    bz t3 l2_alloc_end
+    jmp l1_alloc_begin
+#end of alloc an array
+l2_alloc_end:
+	ret
