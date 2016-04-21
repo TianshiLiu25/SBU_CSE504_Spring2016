@@ -19,7 +19,6 @@ def print_ast():
         c.printout()
     print "-----------------------------------------------------------------------------"
 
-<<<<<<< Updated upstream
 temporary_cnt = 0
 def generate_new_temporary():
     global temporary_cnt 
@@ -36,11 +35,7 @@ def generate_new_label(s):
     if(s == None) :
         s = ""
     return "l%d_%s" %(temporary_label,s)
-    
-    
-    
-=======
->>>>>>> Stashed changes
+
 def typecheck():
     global errorflag
     errorflag = False
@@ -101,13 +96,11 @@ class Class:
         self.fields = {}  # dictionary, keyed by field name
         self.constructors = []
         self.methods = []
-<<<<<<< Updated upstream
         if(superclass != None) :
             self.wholeoffset = superclass.wholeoffset
         else :
             self.wholeoffset = 0
-=======
->>>>>>> Stashed changes
+
         self.builtin = False
 
     def printout(self):
@@ -122,10 +115,7 @@ class Class:
         else:
             scname = sc.name
         print "Superclass Name: {0}".format(scname)
-<<<<<<< Updated upstream
         print "Wholeoffset: {0}".format(self.wholeoffset)
-=======
->>>>>>> Stashed changes
         print "Fields:"
         for f in self.fields:
             (self.fields[f]).printout()
@@ -179,23 +169,15 @@ class Class:
                 if (isinstance(m.body, BlockStmt)):
                     m.body.stmtlist.append(ReturnStmt(None,m.body.lines))
                 else:
-<<<<<<< Updated upstream
                     m.body = BlockStmt([m.body, ReturnStmt(None,m.body.lines)], m.body.lines)
-=======
-                    m.body = BlockStmt([m.body, ReturnStmt(None,m.body.lines)], mbody.lines)
->>>>>>> Stashed changes
             else:
                 if (m.body.has_return() < 2):
                     signal_type_error("Method needs a return statement on every control flow path", m.body.lines)
 
     def add_field(self, fname, field):
         self.fields[fname] = field
-<<<<<<< Updated upstream
         field.offset = self.wholeoffset
         self.wholeoffset += 1
-        
-=======
->>>>>>> Stashed changes
     def add_constructor(self, constr):
         self.constructors.append(constr)
     def add_method(self, method):
@@ -220,17 +202,10 @@ class Class:
         if (self.name == other.name):
             return True
         elif (self.superclass != None):
-<<<<<<< Updated upstream
             if (self.superclass == other):
                 return True
             else:
                 return self.superclass.is_subclass_of(other)
-=======
-             if (self.superclass == other):
-                 return True
-             else:
-                 return self.superclass.is_subclass_of(other)
->>>>>>> Stashed changes
         return False
             
 class Type:
@@ -312,11 +287,7 @@ class Field:
         self.type = ftype
 
     def printout(self):
-<<<<<<< Updated upstream
         print "FIELD {0}, {1}, {2}, {3}, {4}, {5}, {6}".format(self.id, self.name, self.inclass.name, self.visibility, self.storage, self.type, self.offset)
-=======
-        print "FIELD {0}, {1}, {2}, {3}, {4}, {5}".format(self.id, self.name, self.inclass.name, self.visibility, self.storage, self.type)
->>>>>>> Stashed changes
 
 class Method:
     """A class encoding methods and their attributes in Decaf"""
@@ -703,11 +674,8 @@ class Expr(object):
 
 class ConstantExpr(Expr):
     def __init__(self, kind, arg=None, lines=None):
-<<<<<<< Updated upstream
-=======
         self.lcode = []
         self.rcode = []
->>>>>>> Stashed changes
         self.lines = lines
         self.kind = kind
         if (kind=='int'):
@@ -717,12 +685,9 @@ class ConstantExpr(Expr):
         elif (kind == 'string'):
             self.string = arg
         self.__typeof = None
-<<<<<<< Updated upstream
         self.rcode = []
         self.at = ""
         self.t = ""
-=======
->>>>>>> Stashed changes
 
             
     def __repr__(self):
@@ -756,7 +721,6 @@ class ConstantExpr(Expr):
             elif (self.kind == 'False'):
                 self.__typeof = Type('boolean')
         return self.__typeof
-<<<<<<< Updated upstream
     
     def codegen(self):
         code = ["Unknown"]
@@ -777,18 +741,12 @@ class ConstantExpr(Expr):
         elif (self.kind == 'False'):
             self.t = generate_new_temporary()
             code = ["    move_immed_i %s,%d" %(self.t,0)]
-        self.rcode = code 
-
-class VarExpr(Expr):
-    def __init__(self, var, lines):
-=======
-            
+        self.rcode = code
 
 class VarExpr(Expr):
     def __init__(self, var, lines):
         self.lcode = []
         self.rcode = []
->>>>>>> Stashed changes
         self.lines = lines
         self.var = var
         self.__typeof = None
@@ -802,11 +760,8 @@ class VarExpr(Expr):
 
 class UnaryExpr(Expr):
     def __init__(self, uop, expr, lines):
-<<<<<<< Updated upstream
-=======
         self.lcode = []
         self.rcode = []
->>>>>>> Stashed changes
         self.lines = lines
         self.uop = uop
         self.arg = expr
@@ -819,11 +774,7 @@ class UnaryExpr(Expr):
             argtype = self.arg.typeof()
             self.__typeof = Type('error')
             if (self.uop == 'uminus'):
-<<<<<<< Updated upstream
                 if ((argtype.isnumeric())) :
-=======
-                if ((argtype.isnumeric()):
->>>>>>> Stashed changes
                     self.__typeof = argtype
                 elif (argtype.kind != 'error'):
                     # not already in error
@@ -835,24 +786,21 @@ class UnaryExpr(Expr):
                     # not already in error
                     signal_type_error("Type error in unary negation expression: boolean expected, found {0}".format(str(argtype)), self.arg.lines)
         return self.__typeof
-<<<<<<< Updated upstream
-                    
-=======
+
 
     def codegen(self):
         code = []
         self.t = generate_new_temporary()
         if (self.uop == 'uminus'):
-            arg.codegen()
+            self.arg.codegen()
             code.append("move_immed_i %s,%d\n" % self.t % 0)
             code.append("isub %s,%s,%s" % self.t % self.t % self.t)
         elif (self.uop == 'neg'):
-            arg.codegen()
+            self.arg.codegen()
             code.append("move_immed_i %s,%d\n" % self.t % 1)
             code.append("isub %s,%s,%s" % self.t % self.t % self.t)
         self.rcode = code
 
->>>>>>> Stashed changes
 def signal_bop_error(argpos, bop, argtype, arg, possible_types, ptype_string):
     if (argtype.kind not in (['error'] + possible_types)):
         # not already in error
@@ -860,11 +808,8 @@ def signal_bop_error(argpos, bop, argtype, arg, possible_types, ptype_string):
         
 class BinaryExpr(Expr):
     def __init__(self, bop, arg1, arg2, lines):
-<<<<<<< Updated upstream
-=======
         self.lcode = []
         self.rcode = []
->>>>>>> Stashed changes
         self.lines = lines
         self.bop = bop
         self.arg1 = arg1
@@ -919,10 +864,34 @@ class BinaryExpr(Expr):
                        
         return self.__typeof
 
-<<<<<<< Updated upstream
 class AssignExpr(Expr):
     def __init__(self, lhs, rhs, lines):
-=======
+        self.lcode = []
+        self.rcode = []
+        self.lines = lines
+        self.lhs = lhs
+        self.rhs = rhs
+        self.__typeof = None
+
+    def __repr__(self):
+        return "Assign({0}, {1}, {2}, {3})".format(self.lhs, self.rhs, self.lhs.typeof(), self.rhs.typeof())
+
+    def typeof(self):
+        if (self.__typeof == None):
+            lhstype = self.lhs.typeof()
+            rhstype = self.rhs.typeof()
+            if (lhstype.isok() and rhstype.isok()):
+                if (rhstype.is_subtype_of(lhstype)):
+                    self.__typeof = rhstype
+                else:
+                    self.__typeof = Type('error')
+                    signal_type_error(
+                        'Type error in assign expression: compatible types expected, found {0} and {1}'.format(
+                            str(lhstype), str(rhstype)), self.lines)
+            else:
+                self.__typeof = Type('error')
+        return self.__typeof
+
     def codegen(self):
         code = []
         self.t = generate_new_temporary()
@@ -968,39 +937,12 @@ class AssignExpr(Expr):
             code.append("%s:" % endlabel)
         code.append("\n")
         return code
-class AssignExpr(Expr):
-    def __init__(self, lhs, rhs, lines):
-        self.lcode = []
-        self.rcode = []
->>>>>>> Stashed changes
-        self.lines = lines
-        self.lhs = lhs
-        self.rhs = rhs
-        self.__typeof = None
-    def __repr__(self):
-        return "Assign({0}, {1}, {2}, {3})".format(self.lhs, self.rhs, self.lhs.typeof(), self.rhs.typeof())
 
-    def typeof(self):
-        if (self.__typeof == None):
-            lhstype = self.lhs.typeof()
-            rhstype = self.rhs.typeof()
-            if (lhstype.isok() and rhstype.isok()):
-                if (rhstype.is_subtype_of(lhstype)):
-                    self.__typeof = rhstype
-                else:
-                    self.__typeof = Type('error')
-                    signal_type_error('Type error in assign expression: compatible types expected, found {0} and {1}'.format(str(lhstype), str(rhstype)), self.lines)
-            else:
-                self.__typeof = Type('error')
-        return self.__typeof
     
 class AutoExpr(Expr):
     def __init__(self, arg, oper, when, lines):
-<<<<<<< Updated upstream
-=======
         self.lcode = []
         self.rcode = []
->>>>>>> Stashed changes
         self.lines = lines
         self.arg = arg
         self.oper = oper
@@ -1020,29 +962,26 @@ class AutoExpr(Expr):
                     signal_type_error('Type error in auto expression: int/float expected, found {0}'.format(str(argtype)), self.lines)
         return self.__typeof
 
-<<<<<<< Updated upstream
-=======
     def codegen(self):
         code = []
         self.arg.codegen()
         oneAdd = generate_new_temporary()
         code.append("move_immed_i %s,%d" %(oneAdd,1))
-        if (self.when == 'pre' & & self.oper == 'inc'):
-            code.extend(arg.rCode)
+        if (self.when == 'pre' and self.oper == 'inc'):
+            code.extend(self.arg.rCode)
             code.append("iadd %s,%s,%s" % (self.arg.t, self.arg.t, oneAdd))
-        elif (self.when == 'pre' & & self.oper == 'dec'):
-            code.extend(arg.rCode)
+        elif (self.when == 'pre' and self.oper == 'dec'):
+            code.extend(self.arg.rCode)
             code.append("isub %s,%s,%s" % (self.arg.t, self.arg.t, oneAdd))
-        elif (self.when == 'post' & & self.oper == 'inc'):
+        elif (self.when == 'post' and self.oper == 'inc'):
             code.append("iadd %s,%s,%s" % (self.arg.t, self.arg.t, oneAdd))
-            code.extend(arg.rCode)
-        elif (self.when == 'post' & & self.oper == 'dec'):
+            code.extend(self.arg.rCode)
+        elif (self.when == 'post' and self.oper == 'dec'):
             code.append("isub %s,%s,%s" % (self.arg.t, self.arg.t, oneAdd))
-            code.extend(arg.rCode)
+            code.extend(self.arg.rCode)
         self.code = code
         return code
 
->>>>>>> Stashed changes
 def find_applicable_methods(acc, baseclass, mname, argtypes):
     ms = []
     for m in baseclass.methods:
@@ -1167,11 +1106,10 @@ def resolve_field(acc, baseclass, fname, current):
 
 class FieldAccessExpr(Expr):
     def __init__(self, base, fname, lines):
-<<<<<<< Updated upstream
-=======
+
         self.lcode = []
         self.rcode = []
->>>>>>> Stashed changes
+
         self.lines = lines
         self.base = base
         self.fname = fname
@@ -1210,11 +1148,8 @@ class FieldAccessExpr(Expr):
     
 class MethodInvocationExpr(Expr):
     def __init__(self, field, args, lines):
-<<<<<<< Updated upstream
-=======
         self.lcode = []
         self.rcode = []
->>>>>>> Stashed changes
         self.lines = lines
         self.base = field.base
         self.mname = field.fname
@@ -1252,20 +1187,13 @@ class MethodInvocationExpr(Expr):
                             self.__typeof = j.rtype
                     else:
                         self.__typeof = Type('error')
-<<<<<<< Updated upstream
         return self.__typeof 
         
     
 class NewObjectExpr(Expr):
     def __init__(self, cref, args, lines):
-=======
-        return self.__typeof
-    
-class NewObjectExpr(Expr):
-    def __init__(self, cref, args, lines):
         self.lcode = []
         self.rcode = []
->>>>>>> Stashed changes
         self.lines = lines
         self.classref = cref
         self.args = args
@@ -1293,11 +1221,8 @@ class NewObjectExpr(Expr):
 class ThisExpr(Expr):
     global current_class
     def __init__(self, lines):
-<<<<<<< Updated upstream
-=======
         self.lcode = []
         self.rcode = []
->>>>>>> Stashed changes
         self.lines = lines
         self.__typeof = None
     def __repr__(self):
@@ -1310,11 +1235,8 @@ class ThisExpr(Expr):
 class SuperExpr(Expr):
     global current_class
     def __init__(self, lines):
-<<<<<<< Updated upstream
-=======
         self.lcode = []
         self.rcode = []
->>>>>>> Stashed changes
         self.lines = lines
         self.__typeof = None
     def __repr__(self):
@@ -1332,11 +1254,8 @@ class SuperExpr(Expr):
     
 class ClassReferenceExpr(Expr):
     def __init__(self, cref, lines):
-<<<<<<< Updated upstream
-=======
         self.lcode = []
         self.rcode = []
->>>>>>> Stashed changes
         self.lines = lines
         self.classref = cref
         self.__typeof = None
@@ -1350,11 +1269,8 @@ class ClassReferenceExpr(Expr):
     
 class ArrayAccessExpr(Expr):
     def __init__(self, base, index, lines):
-<<<<<<< Updated upstream
-=======
         self.lcode = []
         self.rcode = []
->>>>>>> Stashed changes
         self.lines = lines
         self.base = base
         self.index = index
@@ -1374,24 +1290,17 @@ class ArrayAccessExpr(Expr):
                 mytype = self.base.typeof().basetype
             self.__typeof = mytype
         return self.__typeof
-                
-<<<<<<< Updated upstream
 
-class NewArrayExpr(Expr):
-    def __init__(self, basetype, args, lines):
-=======
                 
 
 class NewArrayExpr(Expr):
     def __init__(self, basetype, args, lines):
         self.lcode = []
         self.rcode = []
->>>>>>> Stashed changes
         self.lines = lines
         self.basetype = basetype
         self.args = args
         self.__typeof = None
-<<<<<<< Updated upstream
         self.t = ""
         self.lcode = []
         self.rcode = []
@@ -1405,11 +1314,6 @@ class NewArrayExpr(Expr):
             s += "\n"
             s += i
         return s
-        
-=======
-    def __repr__(self):
-        return "New-array({0}, {1})".format(self.basetype, self.args)
->>>>>>> Stashed changes
 
     def typeof(self):
         if (self.__typeof == None):
@@ -1426,8 +1330,7 @@ class NewArrayExpr(Expr):
                     break
             self.__typeof = mytype
         return self.__typeof
-<<<<<<< Updated upstream
-    
+
     def recur(self, args, taddr):
         if(len(args) == 0) : 
             return []
@@ -1463,11 +1366,6 @@ class NewArrayExpr(Expr):
     def codegen(self):
         self.t = self.at = generate_new_temporary()
         self.lcode = []
-        self.rcode = self.recur(self.args, self.t)
-    
-=======
-
->>>>>>> Stashed changes
 
 def signal_type_error(string, lineno):
     global errorflag
