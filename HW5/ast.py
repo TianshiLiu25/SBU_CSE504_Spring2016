@@ -434,6 +434,7 @@ class IfStmt(Stmt):
         self.thenpart = thenpart
         self.elsepart = elsepart
         self.__typecorrect = None
+        self.rcode = []
 
     def printout(self):
         print "If(",
@@ -463,12 +464,28 @@ class IfStmt(Stmt):
         else:
             return 0
 
+    def codegen(self):
+        #labels:
+        ifStart  =generate_new_label("IfOverallStart")
+        stmtStart=generate_new_label("IfStmtStart")
+        stmtEnd  =generate_new_label("IfStmtEnd")
+        eStmtStat=generate_new_label("IfElseStmtStat")
+        eStmtEnd =generate_new_label("IfElseStmtEnd")
+        ifEnd    =generate_new_label("IfOverallEnd")
+        #Run Expr & output
+        self.condtion.codegen()
+        self.rcode.extend(self.condition.rcode)
+        #judgement
+
+
+
 class WhileStmt(Stmt):
     def __init__(self, cond, body, lines):
         self.lines = lines
         self.cond = cond
         self.body = body
         self.__typecorrect = None
+        self.rcode = []
 
     def printout(self):
         print "While(",
@@ -793,12 +810,12 @@ class UnaryExpr(Expr):
         self.t = generate_new_temporary()
         if (self.uop == 'uminus'):
             self.arg.codegen()
-            code.append("move_immed_i %s,%d\n" % self.t % 0)
-            code.append("isub %s,%s,%s" % self.t % self.t % self.t)
+            code.append("    move_immed_i %s,%d\n" % self.t % 0)
+            code.append("    isub %s,%s,%s" % self.t % self.t % self.t)
         elif (self.uop == 'neg'):
             self.arg.codegen()
-            code.append("move_immed_i %s,%d\n" % self.t % 1)
-            code.append("isub %s,%s,%s" % self.t % self.t % self.t)
+            code.append("    move_immed_i %s,%d\n" % self.t % 1)
+            code.append("    isub %s,%s,%s" % self.t % self.t % self.t)
         self.rcode = code
 
 def signal_bop_error(argpos, bop, argtype, arg, possible_types, ptype_string):
@@ -864,6 +881,52 @@ class BinaryExpr(Expr):
                        
         return self.__typeof
 
+    def codegen(self):
+        code = []
+        self.t = generate_new_temporary()
+        self.arg1.codegen()
+        self.arg2.codegen()
+        if (self.bop == '+'):
+            code = ["    iadd %s,%s,%s" % self.t % self.arg1.codegen() % self.arg2.codegen()]
+        elif (self.bop == '-'):
+            code = ["    isub %s,%s,%s" % self.t % self.arg1.codegen() % self.arg2.codegen()]
+        elif (self.bop == '*'):
+            code = ["    imul %s,%s,%s" % self.t % self.arg1.codegen() % self.arg2.codegen()]
+        elif (self.bop == '/'):
+            code = ["    idiv %s,%s,%s" % self.t % self.arg1.codegen() % self.arg2.codegen()]
+        elif (self.bop == '%'):
+            code = ["    imod %s,%s,%s" % self.t % self.arg1.codegen() % self.arg2.codegen()]
+        elif (self.bop == '>'):
+            code = ["    igt %s,%s,%s" % self.t % self.arg1.codegen() % self.arg2.codegen()]
+        elif (self.bop == '>='):
+            code = ["    igeq %s,%s,%s" % self.t % self.arg1.codegen() % self.arg2.codegen()]
+        elif (self.bop == '<'):
+            code = ["    ilt %s,%s,%s" % self.t % self.arg1.codegen() % self.arg2.codegen()]
+        elif (self.bop == '<='):
+            code = ["    ileq %s,%s,%s" % self.t % self.arg1.codegen() % self.arg2.codegen()]
+        elif (self.bop == 'and'):
+            endlabel = generate_new_label("binary_end")
+            falselabel = generate_new_label("binary_false")
+            code = ["    beq %s,%d,%s" % self.arg1.codegen() % 0 % falselabel]
+            code.append("    beq %s,%d,%s" % self.arg2.codegen() % 0 % falselabel)
+            code.append("    move_immed_i %s,1" % self.t)
+            code.append("    jmp %s" % endlabel)
+            code.append("%s:" % falselabel)
+            code.append("    move_immed_i %s,0" % self.t)
+            code.append("%s:" % endlabel)
+        elif (self.bop == 'or'):
+            endlabel = generate_new_label("binary_end")
+            truelabel = generate_new_label("binary_true")
+            code = ["    beq %s,%d,%s" % self.arg1.codegen() % 1 % truelabel]
+            code.append("    beq %s,%d,%s" % self.arg2.codegen() % 1 % truelabel)
+            code.append("    move_immed_i %s,0" % self.t)
+            code.append("    jmp %s" % endlabel)
+            code.append("%s:" % truelabel)
+            code.append("    move_immed_i %s,1" % self.t)
+            code.append("t%s:" % endlabel)
+        code.append("\n")
+        return code
+
 class AssignExpr(Expr):
     def __init__(self, lhs, rhs, lines):
         self.lcode = []
@@ -892,51 +955,6 @@ class AssignExpr(Expr):
                 self.__typeof = Type('error')
         return self.__typeof
 
-    def codegen(self):
-        code = []
-        self.t = generate_new_temporary()
-        self.arg1.codegen()
-        self.arg2.codegen()
-        if (self.bop == '+'):
-            code = ["iadd %s,%s,%s" % self.t % self.arg1.codegen() % self.arg2.codegen()]
-        elif (self.bop == '-'):
-            code = ["isub %s,%s,%s" % self.t % self.arg1.codegen() % self.arg2.codegen()]
-        elif (self.bop == '*'):
-            code = ["imul %s,%s,%s" % self.t % self.arg1.codegen() % self.arg2.codegen()]
-        elif (self.bop == '/'):
-            code = ["idiv %s,%s,%s" % self.t % self.arg1.codegen() % self.arg2.codegen()]
-        elif (self.bop == '%'):
-            code = ["imod %s,%s,%s" % self.t % self.arg1.codegen() % self.arg2.codegen()]
-        elif (self.bop == '>'):
-            code = ["igt %s,%s,%s" % self.t % self.arg1.codegen() % self.arg2.codegen()]
-        elif (self.bop == '>='):
-            code = ["igeq %s,%s,%s" % self.t % self.arg1.codegen() % self.arg2.codegen()]
-        elif (self.bop == '<'):
-            code = ["ilt %s,%s,%s" % self.t % self.arg1.codegen() % self.arg2.codegen()]
-        elif (self.bop == '<='):
-            code = ["ileq %s,%s,%s" % self.t % self.arg1.codegen() % self.arg2.codegen()]
-        elif (self.bop == 'and'):
-            endlabel = generate_new_label("binary_end")
-            falselabel = generate_new_label("binary_false")
-            code = ["beq %s,%d,%s" % self.arg1.codegen() % 0 % falselabel]
-            code.append("beq %s,%d,%s" % self.arg2.codegen() % 0 % falselabel)
-            code.append("move_immed_i %s,1" % self.t)
-            code.append("jmp %s" % endlabel)
-            code.append("%s:" % falselabel)
-            code.append("move_immed_i %s,0" % self.t)
-            code.append("%s:" % endlabel)
-        elif (self.bop == 'or'):
-            endlabel = generate_new_label("binary_end")
-            truelabel = generate_new_label("binary_true")
-            code = ["beq %s,%d,%s" % self.arg1.codegen() % 1 % truelabel]
-            code.append("beq %s,%d,%s" % self.arg2.codegen() % 1 % truelabel)
-            code.append("move_immed_i %s,0" % self.t)
-            code.append("jmp %s" % endlabel)
-            code.append("%s:" % truelabel)
-            code.append("move_immed_i %s,1" % self.t)
-            code.append("%s:" % endlabel)
-        code.append("\n")
-        return code
 
     
 class AutoExpr(Expr):
@@ -966,18 +984,18 @@ class AutoExpr(Expr):
         code = []
         self.arg.codegen()
         oneAdd = generate_new_temporary()
-        code.append("move_immed_i %s,%d" %(oneAdd,1))
+        code.append("    move_immed_i %s,%d" %(oneAdd,1))
         if (self.when == 'pre' and self.oper == 'inc'):
             code.extend(self.arg.rCode)
-            code.append("iadd %s,%s,%s" % (self.arg.t, self.arg.t, oneAdd))
+            code.append("    iadd %s,%s,%s" % (self.arg.t, self.arg.t, oneAdd))
         elif (self.when == 'pre' and self.oper == 'dec'):
             code.extend(self.arg.rCode)
-            code.append("isub %s,%s,%s" % (self.arg.t, self.arg.t, oneAdd))
+            code.append("    isub %s,%s,%s" % (self.arg.t, self.arg.t, oneAdd))
         elif (self.when == 'post' and self.oper == 'inc'):
-            code.append("iadd %s,%s,%s" % (self.arg.t, self.arg.t, oneAdd))
+            code.append("    iadd %s,%s,%s" % (self.arg.t, self.arg.t, oneAdd))
             code.extend(self.arg.rCode)
         elif (self.when == 'post' and self.oper == 'dec'):
-            code.append("isub %s,%s,%s" % (self.arg.t, self.arg.t, oneAdd))
+            code.append("    isub %s,%s,%s" % (self.arg.t, self.arg.t, oneAdd))
             code.extend(self.arg.rCode)
         self.code = code
         return code
